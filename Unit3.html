@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unit 3 Review - Road trip</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .question {
+            background-color: #e0e0e0;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .question div {
+            cursor: pointer;
+            padding: 5px;
+        }
+        .answer {
+            display: none;
+            padding-top: 10px;
+            color: green;
+            font-style: italic;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        footer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Unit 3 Review - Road trip</h1>
+    <img src="Unit3.png" alt="Unit Poster" width="300">
+    <div class="container" id="questions-container">
+        <!-- Questions will be dynamically inserted here -->
+    </div>
+
+    <button onclick="generateQuestions()">Refresh Questions</button>
+
+    <script>
+        const topicsWithQuestions = [
+            {
+                topic: "Analyze figures to identify points, lines, planes, and intersections of lines and planes",
+                questions: [
+                    { question: "What is a point in geometry?", answer: "An exact location in space with no size or dimension." },
+                    { question: "How do you identify a line in a figure?", answer: "A straight path that extends infinitely in both directions with no thickness." },
+                    { question: "Describe the intersection of two planes.", answer: "The intersection of two planes is a line." }
+                ]
+            },
+            {
+                topic: "Identify and define points, lines, and planes",
+                questions: [
+                    { question: "Define a plane in geometry.", answer: "A flat surface that extends infinitely in all directions." },
+                    { question: "How is a line named?", answer: "By any two points on the line or a lowercase script letter." },
+                    { question: "What symbol represents a point?", answer: "A dot labeled with a capital letter." }
+                ]
+            },
+            {
+                topic: "Identify and define 'space', 'collinear' points, and 'coplanar' points",
+                questions: [
+                    { question: "What is space in geometry?", answer: "The set of all possible points in three dimensions." },
+                    { question: "Define collinear points.", answer: "Points that lie on the same straight line." },
+                    { question: "What are coplanar points?", answer: "Points that lie on the same plane." }
+                ]
+            },
+            {
+                topic: "Identify intersections of lines and planes",
+                questions: [
+                    { question: "What is the intersection of a line and a plane?", answer: "It can be a point or a line if the line lies on the plane." },
+                    { question: "How can two lines intersect?", answer: "At a single point if they are in the same plane." },
+                    { question: "Describe the intersection of two planes.", answer: "They intersect along a line." }
+                ]
+            },
+            {
+                topic: "Draw and interpret geometric drawings",
+                questions: [
+                    { question: "How do you represent a plane in a drawing?", answer: "As a parallelogram or a shaded flat surface." },
+                    { question: "What does a dashed line in a geometric drawing indicate?", answer: "A hidden part of the figure behind another part." },
+                    { question: "Explain how to depict intersecting lines.", answer: "By drawing two lines crossing at a point." }
+                ]
+            },
+            {
+                topic: "Calculate measures of line segments",
+                questions: [
+                    { question: "Find the length of segment AB if A is at 2 and B is at 7 on a number line.", answer: "Length = |7 - 2| = 5 units" },
+                    { question: "If segment CD has endpoints at (-3, 0) and (4, 0), what is its length?", answer: "Length = |4 - (-3)| = 7 units" },
+                    { question: "Calculate the length of segment EF with E at (1,2) and F at (1,5).", answer: "Length = |5 - 2| = 3 units" }
+                ]
+            },
+            {
+                topic: "Apply the definition of congruent line segments to find missing values",
+                questions: [
+                    { question: "If segment GH ≅ segment IJ and GH = 8 cm, what is IJ?", answer: "IJ = 8 cm" },
+                    { question: "Segments KL and LM are congruent. If KL = 3x and LM = 12, find x.", answer: "3x = 12; x = 4" },
+                    { question: "Given that segment NP ≅ segment PQ and NP = 2y + 5, PQ = 15, find y.", answer: "2y + 5 = 15; y = 5" }
+                ]
+            },
+            {
+                topic: "Find the length of a line segment on a number line",
+                questions: [
+                    { question: "What is the length of segment RS with endpoints at -2 and 6?", answer: "Length = |6 - (-2)| = 8 units" },
+                    { question: "Calculate the distance between points at 5 and -3.", answer: "Distance = |5 - (-3)| = 8 units" },
+                    { question: "Find the length of segment TU where T is at -7 and U is at -1.", answer: "Length = |-1 - (-7)| = 6 units" }
+                ]
+            },
+            {
+                topic: "Define Pythagorean Theorem and its converse for right-angled triangles",
+                questions: [
+                    { question: "State the Pythagorean Theorem.", answer: "In a right-angled triangle, a² + b² = c², where c is the hypotenuse." },
+                    { question: "What is the converse of the Pythagorean Theorem?", answer: "If a² + b² = c², then the triangle is right-angled." },
+                    { question: "Explain how the Pythagorean Theorem is used.", answer: "To find the length of a side in a right-angled triangle." }
+                ]
+            },
+            {
+                topic: "Use the Pythagorean Theorem to find distances",
+                questions: [
+                    { question: "In a right triangle with legs of 3 units and 4 units, find the hypotenuse.", answer: "c = √(3² + 4²) = √25 = 5 units" },
+                    { question: "If the hypotenuse is 13 units and one leg is 5 units, find the other leg.", answer: "a = √(13² - 5²) = √(169 - 25) = √144 = 12 units" },
+                    { question: "Calculate the distance between points (0,0) and (6,8) using the Pythagorean Theorem.", answer: "Distance = √(6² + 8²) = √(36 + 64) = √100 = 10 units" }
+                ]
+            },
+            {
+                topic: "Find the distance between two points on the coordinate plane",
+                questions: [
+                    { question: "Find the distance between (2,3) and (7,7).", answer: "Distance = √[(7-2)² + (7-3)²] = √(25 + 16) = √41" },
+                    { question: "Calculate the distance from (-4,1) to (2,1).", answer: "Distance = √[(2 - (-4))² + (1 - 1)²] = √(36) = 6 units" },
+                    { question: "What is the distance between (5,-2) and (5,4)?", answer: "Distance = √[(5 - 5)² + (4 - (-2))²] = √(36) = 6 units" }
+                ]
+            },
+            {
+                topic: "Find a point on a directed line segment on a number line that is a given fractional distance from the initial point",
+                questions: [
+                    { question: "Find the point 1/2 of the way from A(-2) to B(6).", answer: "Point = (-2) + (1/2)(6 - (-2)) = (-2) + 4 = 2" },
+                    { question: "Determine the point 1/4 of the way from C(0) to D(8).", answer: "Point = 0 + (1/4)(8 - 0) = 0 + 2 = 2" },
+                    { question: "Find the point 3/5 of the way from E(-5) to F(5).", answer: "Point = -5 + (3/5)(5 - (-5)) = -5 + 6 = 1" }
+                ]
+            },
+            {
+                topic: "Find a point that partitions a directed line segment on a number line in a given ratio, i.e., section formula",
+                questions: [
+                    { question: "Find the point that divides segment GH from G(2) to H(10) in a ratio of 1:3.", answer: "Point = (1×10 + 3×2)/(1+3) = (10 + 6)/4 = 16/4 = 4" },
+                    { question: "Determine the point that divides segment IJ from I(-6) to J(2) in a ratio of 2:1.", answer: "Point = (2×2 + 1×(-6))/(2+1) = (4 -6)/3 = (-2)/3 ≈ -0.67" },
+                    { question: "Find the point that partitions segment KL from K(0) to L(9) in a ratio of 3:2.", answer: "Point = (3×9 + 2×0)/(3+2) = (27 + 0)/5 = 27/5 = 5.4" }
+                ]
+            },
+            {
+                topic: "Find a point on a directed line segment on the coordinate plane that is a given fractional distance from the initial point",
+                questions: [
+                    { question: "Find the point 1/2 of the way from M(2,2) to N(8,8).", answer: "Point = ((2 + 1/2×(8-2)), (2 + 1/2×(8-2))) = (5,5)" },
+                    { question: "Determine the point 1/3 of the way from O(3,6) to P(9,12).", answer: "Point = (3 + 1/3×(9-3), 6 + 1/3×(12-6)) = (5,8)" },
+                    { question: "Find the point 3/4 of the way from Q(0,0) to R(4,8).", answer: "Point = (0 + 3/4×4, 0 + 3/4×8) = (3,6)" }
+                ]
+            },
+            {
+                topic: "Find a point that partitions a directed line segment on the coordinate plane in a given ratio, i.e., section formula",
+                questions: [
+                    { question: "Find the point that divides segment ST from S(1,2) to T(7,8) in a ratio of 1:2.", answer: "Point = ((1×7 + 2×1)/(1+2), (1×8 + 2×2)/(1+2)) = (9/3,12/3) = (3,4)" },
+                    { question: "Determine the point that partitions segment UV from U(-2,4) to V(4,10) in a ratio of 2:1.", answer: "Point = ((2×4 + 1×(-2))/3, (2×10 + 1×4)/3) = (6/3,24/3) = (2,8)" },
+                    { question: "Find the point that divides segment WX from W(0,0) to X(6,9) in a ratio of 1:2.", answer: "Point = ((1×6 + 2×0)/3, (1×9 + 2×0)/3) = (6/3,9/3) = (2,3)" }
+                ]
+            },
+            {
+                topic: "Find the coordinate of a midpoint on a number line",
+                questions: [
+                    { question: "Find the midpoint between Y(-3) and Z(5).", answer: "Midpoint = (-3 + 5)/2 = 1" },
+                    { question: "What is the midpoint of segment AB from A(6) to B(10)?", answer: "Midpoint = (6 + 10)/2 = 8" },
+                    { question: "Calculate the midpoint between points at -8 and -2.", answer: "Midpoint = (-8 + (-2))/2 = -5" }
+                ]
+            },
+            {
+                topic: "Find the coordinates of the midpoint or endpoint of a line segment on the coordinate plane",
+                questions: [
+                    { question: "Find the midpoint of segment CD with endpoints C(2,4) and D(6,8).", answer: "Midpoint = ((2+6)/2, (4+8)/2) = (4,6)" },
+                    { question: "Given midpoint E(5,7) and endpoint F(2,3), find the other endpoint G.", answer: "G = (2×5 - 2, 2×7 - 3) = (8,11)" },
+                    { question: "What is the midpoint between H(-1,-2) and I(3,4)?", answer: "Midpoint = ((-1+3)/2, (-2+4)/2) = (1,1)" }
+                ]
+            },
+            {
+                topic: "Find missing values using the definition of a segment bisector",
+                questions: [
+                    { question: "If segment JK is bisected at point L, and JL = 3x - 5, LK = x + 7, find x.", answer: "3x - 5 = x + 7; 2x = 12; x = 6" },
+                    { question: "Segment MN is bisected by point O. If MO = 2y + 1 and ON = y + 4, find y.", answer: "2y + 1 = y + 4; y = 3" },
+                    { question: "Given that PQ is bisected by R, and PR = 5, what is the length of PQ?", answer: "PQ = 2 × PR = 10 units" }
+                ]
+            }
+        ];
+
+        function generateQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = ''; // Clear previous questions
+
+            // Shuffle topics and pick three random ones
+            const shuffledTopics = topicsWithQuestions.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            // Add selected topics and questions to the page
+            shuffledTopics.forEach((topicObj) => {
+                const topicDiv = document.createElement('div');
+                topicDiv.className = 'question';
+                topicDiv.innerHTML = `<strong>Topic:</strong> ${topicObj.topic}<br><br>`;
+                
+                // Display questions under each topic
+                const shuffledQuestions = topicObj.questions.sort(() => 0.5 - Math.random());
+                shuffledQuestions.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.innerHTML = `<div class="question-text" onclick="toggleAnswer('answer-${topicObj.topic}-${index}')">${q.question}</div>
+                                             <div class="answer" id="answer-${topicObj.topic}-${index}">${q.answer}</div>`;
+                    topicDiv.appendChild(questionDiv);
+                });
+                
+                container.appendChild(topicDiv);
+            });
+        }
+
+        function toggleAnswer(answerId) {
+            const answerDiv = document.getElementById(answerId);
+            if (answerDiv.style.display === 'none' || answerDiv.style.display === '') {
+                answerDiv.style.display = 'block';
+            } else {
+                answerDiv.style.display = 'none';
+            }
+        }
+
+        // Generate initial set of questions when the page loads
+        window.onload = generateQuestions;
+    </script>
+    <footer>
+        <p>Created by your_email@example.com on 17/9/2024</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unit 5 Review - Cityscapes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .question {
+            background-color: #e0e0e0;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .question div {
+            cursor: pointer;
+            padding: 5px;
+        }
+        .answer {
+            display: none;
+            padding-top: 10px;
+            color: green;
+            font-style: italic;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        footer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Unit Review - Cityscapes</h1>
+    <img src="Unit5.png" alt="Unit Poster" width="300">
+    <div class="container" id="questions-container">
+        <!-- Questions will be dynamically inserted here -->
+    </div>
+
+    <button onclick="generateQuestions()">Refresh Questions</button>
+
+    <script>
+        const topicsWithQuestions = [
+            {
+                topic: "Find perimeters, circumferences, and areas of two-dimensional geometric shapes (i.e., triangle, square, rectangle, circle)",
+                questions: [
+                    { question: "Calculate the perimeter of a rectangle with length 8 cm and width 5 cm.", answer: "Perimeter = 2(length + width) = 2(8 + 5) = 26 cm" },
+                    { question: "Find the area of a circle with a radius of 7 meters.", answer: "Area = πr² = π(7)² ≈ 153.94 m²" },
+                    { question: "What is the circumference of a circle with diameter 10 inches?", answer: "Circumference = πd = π(10) ≈ 31.42 inches" }
+                ]
+            },
+            {
+                topic: "Find perimeters, circumferences, and areas of two-dimensional geometric shapes by using coordinates and the distance formula",
+                questions: [
+                    { question: "Find the perimeter of a triangle with vertices at (0,0), (4,0), and (4,3).", answer: "Sides: 4 units, 3 units, 5 units; Perimeter = 12 units" },
+                    { question: "Calculate the area of a rectangle with vertices at (1,1), (1,6), (5,6), (5,1).", answer: "Area = length × width = (5-1) × (6-1) = 4 × 5 = 20 units²" },
+                    { question: "Determine the circumference of a circle centered at (0,0) passing through (3,4).", answer: "Radius = √(3² + 4²) = 5 units; Circumference = 2πr = 10π units" }
+                ]
+            },
+            {
+                topic: "Calculate the measures of real-world objects by using two-dimensional geometric shapes and their perimeters, circumferences, areas, and properties to model the objects",
+                questions: [
+                    { question: "Estimate the area needed for a circular garden with a diameter of 12 feet.", answer: "Radius = 6 ft; Area = π(6)² ≈ 113.1 ft²" },
+                    { question: "A rectangular field is 100 meters long and 50 meters wide. Find its perimeter.", answer: "Perimeter = 2(100 + 50) = 300 meters" },
+                    { question: "Calculate the amount of fencing needed to enclose a triangular lot with sides of 30 m, 40 m, and 50 m.", answer: "Perimeter = 30 + 40 + 50 = 120 meters" }
+                ]
+            },
+            {
+                topic: "Identify and determine characteristics of three-dimensional figures or polyhedrons (i.e., prism, pyramid, cylinder, cone, sphere)",
+                questions: [
+                    { question: "How many faces does a cube have?", answer: "6 faces" },
+                    { question: "Describe a cylinder.", answer: "A 3D shape with two parallel circular bases connected by a curved surface." },
+                    { question: "What is a cone?", answer: "A 3D figure with a circular base that tapers smoothly to a point called the apex." }
+                ]
+            },
+            {
+                topic: "Recognize the characteristics of 5 types of Platonic solids",
+                questions: [
+                    { question: "Name the five Platonic solids.", answer: "Tetrahedron, Cube (Hexahedron), Octahedron, Dodecahedron, Icosahedron" },
+                    { question: "What are Platonic solids?", answer: "Convex regular polyhedra with identical faces composed of congruent regular polygons." },
+                    { question: "How many faces does a dodecahedron have?", answer: "12 faces" }
+                ]
+            },
+            {
+                topic: "Model real-world objects by using three-dimensional figures",
+                questions: [
+                    { question: "Which 3D shape best models a soup can?", answer: "A cylinder" },
+                    { question: "What geometric shape models a soccer ball?", answer: "A sphere" },
+                    { question: "Identify the 3D shape that models a pyramid in Egypt.", answer: "A square-based pyramid" }
+                ]
+            },
+            {
+                topic: "Calculate volumes and surface areas of three-dimensional figures, and solve for unknown values",
+                questions: [
+                    { question: "Find the volume of a cylinder with radius 3 cm and height 10 cm.", answer: "Volume = πr²h = π(3)²(10) ≈ 282.74 cm³" },
+                    { question: "Calculate the surface area of a sphere with radius 5 meters.", answer: "Surface Area = 4πr² = 4π(5)² ≈ 314.16 m²" },
+                    { question: "A cone has a volume of 100 cm³ and a radius of 4 cm. Find its height.", answer: "Volume = (1/3)πr²h; 100 = (1/3)π(4)²h; h ≈ 5.97 cm" }
+                ]
+            },
+            {
+                topic: "Recognize and construct three-dimensional figures as orthographic drawings",
+                questions: [
+                    { question: "What is an orthographic drawing?", answer: "A method of representing three-dimensional objects with several two-dimensional views." },
+                    { question: "Name the three principal views in an orthographic projection.", answer: "Top view, front view, and side view" },
+                    { question: "Why are orthographic drawings useful?", answer: "They provide precise measurements and details for constructing objects." }
+                ]
+            },
+            {
+                topic: "Calculate surface areas of three-dimensional figures represented by nets",
+                questions: [
+                    { question: "Explain how to find the surface area of a cube using its net.", answer: "Calculate the area of each of the six square faces and sum them." },
+                    { question: "A rectangular prism has dimensions 2 m × 3 m × 4 m. Find its surface area.", answer: "SA = 2(lw + lh + wh) = 2(6 + 8 + 12) = 52 m²" },
+                    { question: "Describe how nets help in calculating surface areas.", answer: "They unfold the 3D shape into 2D shapes, making it easier to compute each face's area." }
+                ]
+            },
+            {
+                topic: "Construct and represent real-world objects with nets",
+                questions: [
+                    { question: "Create a net for a pyramid with a square base.", answer: "Draw a square base with four triangular faces attached to each side." },
+                    { question: "How can you use a net to build a paper model of a cube?", answer: "Cut out the net of six connected squares, fold along edges, and glue together." },
+                    { question: "Why are nets useful in manufacturing?", answer: "They allow for precise cutting and folding of materials to create 3D objects." }
+                ]
+            },
+            {
+                topic: "Determine the levels of precision and accuracy in real-world scenarios",
+                questions: [
+                    { question: "Define precision in measurements.", answer: "The degree to which repeated measurements under unchanged conditions show the same results." },
+                    { question: "What is accuracy in measurements?", answer: "How close a measured value is to the true or accepted value." },
+                    { question: "In which scenario is high precision but low accuracy possible?", answer: "When measurements are consistent but consistently off from the true value due to systematic error." }
+                ]
+            },
+            {
+                topic: "Calculate the approximate error of measurements",
+                questions: [
+                    { question: "If a length is measured as 5.2 cm with an actual length of 5.0 cm, what is the absolute error?", answer: "Absolute error = |Measured - Actual| = |5.2 - 5.0| = 0.2 cm" },
+                    { question: "Calculate the relative error for a measurement of 48 kg when the actual weight is 50 kg.", answer: "Relative error = (|50 - 48| / 50) × 100% = 4%" },
+                    { question: "What does a smaller relative error indicate?", answer: "A more accurate measurement relative to the true value." }
+                ]
+            },
+            {
+                topic: "Choose the appropriate level of accuracy of measurements when reporting quantities",
+                questions: [
+                    { question: "Why should measurements be reported to the correct number of significant figures?", answer: "To reflect the precision of the measuring instrument and not overstate accuracy." },
+                    { question: "If a scale measures to the nearest 0.1 g, to what decimal place should you report the mass?", answer: "To the nearest 0.1 g" },
+                    { question: "When adding 12.3 m and 4.56 m, to how many decimal places should the result be reported?", answer: "To one decimal place: 16.9 m" }
+                ]
+            },
+            {
+                topic: "Determine the correct number of significant figures in recorded measurements",
+                questions: [
+                    { question: "How many significant figures are in the measurement 0.00540 kg?", answer: "Three significant figures" },
+                    { question: "Identify the number of significant figures in 1200 m.", answer: "Two significant figures (assuming no decimal point)" },
+                    { question: "Explain the significance of trailing zeros in measurements.", answer: "Trailing zeros are significant if they come after a decimal point or are indicated by a bar or underline." }
+                ]
+            },
+            {
+                topic: "Round measurements to the correct number of significant figures",
+                questions: [
+                    { question: "Round 3.14159 to three significant figures.", answer: "3.14" },
+                    { question: "Express 0.007856 to two significant figures.", answer: "0.0079" },
+                    { question: "Round 456789 to three significant figures.", answer: "457000" }
+                ]
+            }
+        ];
+
+        function generateQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = ''; // Clear previous questions
+
+            // Shuffle topics and pick three random ones
+            const shuffledTopics = topicsWithQuestions.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            // Add selected topics and questions to the page
+            shuffledTopics.forEach((topicObj) => {
+                const topicDiv = document.createElement('div');
+                topicDiv.className = 'question';
+                topicDiv.innerHTML = `<strong>Topic:</strong> ${topicObj.topic}<br><br>`;
+                
+                // Display questions under each topic
+                const shuffledQuestions = topicObj.questions.sort(() => 0.5 - Math.random());
+                shuffledQuestions.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.innerHTML = `<div class="question-text" onclick="toggleAnswer('answer-${topicObj.topic}-${index}')">${q.question}</div>
+                                             <div class="answer" id="answer-${topicObj.topic}-${index}">${q.answer}</div>`;
+                    topicDiv.appendChild(questionDiv);
+                });
+                
+                container.appendChild(topicDiv);
+            });
+        }
+
+        function toggleAnswer(answerId) {
+            const answerDiv = document.getElementById(answerId);
+            if (answerDiv.style.display === 'none' || answerDiv.style.display === '') {
+                answerDiv.style.display = 'block';
+            } else {
+                answerDiv.style.display = 'none';
+            }
+        }
+
+        // Generate initial set of questions when the page loads
+        window.onload = generateQuestions;
+    </script>
+    <footer>
+        <p>Created by your_email@example.com on 17/9/2024</p>
+    </footer>
+</body>
+</html>

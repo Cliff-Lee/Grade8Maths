@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unit Review - Symbols</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .question {
+            background-color: #e0e0e0;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .question div {
+            cursor: pointer;
+            padding: 5px;
+        }
+        .answer {
+            display: none;
+            padding-top: 10px;
+            color: green;
+            font-style: italic;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        footer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Unit 2 Review - Symbols</h1>
+    <img src="Unit2.png" alt="Unit Poster" width="300">
+    <div class="container" id="questions-container">
+        <!-- Questions will be dynamically inserted here -->
+    </div>
+
+    <button onclick="generateQuestions()">Refresh Questions</button>
+
+    <script>
+        const topicsWithQuestions = [
+            {
+                topic: "Understand that a 'rigid motion' is a transformation that preserves distance and angle measure",
+                questions: [
+                    { question: "What is a rigid motion?", answer: "A transformation that preserves distance and angle measures, resulting in a congruent figure." },
+                    { question: "Name three types of rigid motions.", answer: "Translation, rotation, and reflection." },
+                    { question: "Does a dilation qualify as a rigid motion? Why or why not?", answer: "No, because it changes the size of the figure, not preserving distances." }
+                ]
+            },
+            {
+                topic: "Understand that a transformation is a function that maps a 'preimage' onto an 'image'",
+                questions: [
+                    { question: "Define 'preimage' in transformations.", answer: "The original figure before a transformation is applied." },
+                    { question: "What is an 'image' in geometric transformations?", answer: "The resulting figure after a transformation has been applied to the preimage." },
+                    { question: "Explain how transformations are functions.", answer: "They assign each point of the preimage to exactly one point in the image." }
+                ]
+            },
+            {
+                topic: "Recognize that transformations can occur in the form of a reflection, translation, or rotation",
+                questions: [
+                    { question: "What is a translation?", answer: "A slide of a figure in any direction without rotating or flipping it." },
+                    { question: "Describe a reflection.", answer: "A flip of a figure over a line, creating a mirror image." },
+                    { question: "Explain what a rotation is in geometry.", answer: "Turning a figure around a fixed point by a certain angle." }
+                ]
+            },
+            {
+                topic: "Identify the occurrence of transformations in real life",
+                questions: [
+                    { question: "Give a real-life example of a reflection.", answer: "A mirror image of an object." },
+                    { question: "How is rotation used in everyday life?", answer: "Rotating wheels on a car or the hands of a clock." },
+                    { question: "Provide an example of translation in real life.", answer: "Moving a piece of furniture straight across a room." }
+                ]
+            },
+            {
+                topic: "Identify transformations on a coordinate plane",
+                questions: [
+                    { question: "How can you recognize a reflection on a coordinate plane?", answer: "By observing that points are mirrored over a line, such as the x-axis or y-axis." },
+                    { question: "What indicates a translation has occurred on a coordinate plane?", answer: "All points of a figure have moved the same distance in the same direction." },
+                    { question: "Describe how a rotation appears on a coordinate plane.", answer: "The figure is turned around a point, often the origin, by a certain angle." }
+                ]
+            },
+            {
+                topic: "Calculate the coordinates of the vertices of transformed images given the coordinates of the preimages",
+                questions: [
+                    { question: "If point A(2,3) is translated 4 units right and 2 units up, what are the new coordinates?", answer: "A'(6,5)" },
+                    { question: "Reflect point B(-1,5) over the y-axis. What are the coordinates of B'?", answer: "B'(1,5)" },
+                    { question: "Rotate point C(3,4) 90° counterclockwise around the origin. What are C's new coordinates?", answer: "C'(-4,3)" }
+                ]
+            },
+            {
+                topic: "Describe reflections using the line of reflection",
+                questions: [
+                    { question: "What is the line of reflection?", answer: "The line over which a figure is reflected, acting as a mirror." },
+                    { question: "If a figure is reflected over y = x, how are the coordinates affected?", answer: "The x and y coordinates are swapped: (x, y) becomes (y, x)." },
+                    { question: "Describe the reflection of point D(5,-2) over the x-axis.", answer: "D'(5,2)" }
+                ]
+            },
+            {
+                topic: "Reflect figures in a horizontal or a vertical line",
+                questions: [
+                    { question: "Reflect point E(4,7) over the line y = 5. What are the coordinates of E'?", answer: "E'(4,3)" },
+                    { question: "Reflect point F(-3,2) over the line x = -1. What are the coordinates of F'?", answer: "F'(1,2)" },
+                    { question: "Explain how to reflect a point over a horizontal line y = k.", answer: "Keep the x-coordinate the same and adjust the y-coordinate: y' = 2k - y." }
+                ]
+            },
+            {
+                topic: "Reflect figures in a diagonal line, such as y = x, y = -x",
+                questions: [
+                    { question: "Reflect point G(2,5) over the line y = x.", answer: "G'(5,2)" },
+                    { question: "Reflect point H(-3,4) over the line y = -x.", answer: "H'(-4,3)" },
+                    { question: "Describe the effect of reflecting over y = -x.", answer: "Coordinates swap places and change signs: (x, y) becomes (-y, -x)." }
+                ]
+            },
+            {
+                topic: "Describe translation using translation vectors",
+                questions: [
+                    { question: "What is a translation vector?", answer: "A vector that shows the direction and distance of a translation." },
+                    { question: "Express a translation 3 units left and 2 units down as a vector.", answer: "<-3, -2>" },
+                    { question: "How does the vector <a, b> translate a point (x, y)?", answer: "By moving it to (x + a, y + b)." }
+                ]
+            },
+            {
+                topic: "Translate figures on the coordinate plane",
+                questions: [
+                    { question: "Translate point I(1,2) using the vector <4,-1>.", answer: "I'(5,1)" },
+                    { question: "If a figure is moved 7 units up, what is the translation vector?", answer: "<0,7>" },
+                    { question: "Translate point J(-2,3) 5 units right and 6 units down.", answer: "J'(3,-3)" }
+                ]
+            },
+            {
+                topic: "Describe rotations using the point, angle, and direction",
+                questions: [
+                    { question: "What information is needed to describe a rotation?", answer: "Center of rotation, angle of rotation, and direction (clockwise or counterclockwise)." },
+                    { question: "Describe a rotation of 90° counterclockwise about the origin.", answer: "Each point is rotated 90° CCW around (0,0)." },
+                    { question: "What happens to point K(x,y) when rotated 180° around the origin?", answer: "It becomes K'(-x,-y)." }
+                ]
+            },
+            {
+                topic: "Rotate figures on the coordinate plane around the origin",
+                questions: [
+                    { question: "Rotate point L(3,4) 90° clockwise around the origin.", answer: "L'(4,-3)" },
+                    { question: "Rotate point M(-5,2) 180° around the origin.", answer: "M'(5,-2)" },
+                    { question: "What are the coordinates of point N(1,-2) after a 270° counterclockwise rotation about the origin?", answer: "N'(2,1)" }
+                ]
+            },
+            {
+                topic: "Rotate figures on the coordinate plane around any point",
+                questions: [
+                    { question: "Rotate point O(4,5) 90° CCW around point P(2,2).", answer: "O'(-1,4)" },
+                    { question: "Explain how to rotate a figure around a point other than the origin.", answer: "Translate the figure so the point of rotation aligns with the origin, perform the rotation, then translate back." },
+                    { question: "Rotate point Q(6,3) 180° around point R(4,4).", answer: "Q'(2,5)" }
+                ]
+            },
+            {
+                topic: "Describe dilations using a point and scale factor (which may be positive, negative, and fractional)",
+                questions: [
+                    { question: "What is a dilation in geometry?", answer: "A transformation that changes the size of a figure but not its shape, using a scale factor." },
+                    { question: "Describe a dilation with center at the origin and scale factor of 2.", answer: "Each point moves away from the origin, doubling its distance." },
+                    { question: "What happens when the scale factor is negative?", answer: "The figure is dilated and reflected over the center of dilation." }
+                ]
+            },
+            {
+                topic: "Dilate figures on the coordinate plane about the origin",
+                questions: [
+                    { question: "Dilate point S(3,4) by a scale factor of 0.5 about the origin.", answer: "S'(1.5,2)" },
+                    { question: "Dilate point T(-2,5) by a scale factor of -1 about the origin.", answer: "T'(2,-5)" },
+                    { question: "What are the coordinates of U(6,-3) after a dilation with scale factor 3?", answer: "U'(18,-9)" }
+                ]
+            },
+            {
+                topic: "Dilate figures on the coordinate plane about any point",
+                questions: [
+                    { question: "Dilate point V(5,7) by a scale factor of 2 about point W(3,4).", answer: "V'(7,10)" },
+                    { question: "Explain how to dilate a figure about a point not at the origin.", answer: "Translate the figure so the center of dilation aligns with the origin, apply the dilation, then translate back." },
+                    { question: "Dilate point X(2,2) by a scale factor of 0.5 about point Y(4,4).", answer: "X'(3,3)" }
+                ]
+            },
+            {
+                topic: "Determine the image of a figure after a composition of transformations",
+                questions: [
+                    { question: "Apply a reflection over the y-axis followed by a translation of 3 units up to point Z(-4,2).", answer: "Z'(4,5)" },
+                    { question: "What is the result of rotating a figure 90° CCW and then dilating it by a scale factor of 2?", answer: "The figure is rotated and then enlarged by a factor of 2." },
+                    { question: "Perform a translation of <2,-1> followed by a reflection over x = 0 on point A(1,3).", answer: "After translation: (3,2); After reflection: (-3,2)" }
+                ]
+            },
+            {
+                topic: "Recognize different types of tessellations (i.e., regular, semi-regular, and uniform tessellations)",
+                questions: [
+                    { question: "What is a regular tessellation?", answer: "A pattern made by repeating a regular polygon where all tiles are identical." },
+                    { question: "Define a semi-regular tessellation.", answer: "A tessellation using two or more types of regular polygons arranged in the same pattern at every vertex." },
+                    { question: "What is a uniform tessellation?", answer: "A tessellation where each vertex has the same pattern of shapes in the same order." }
+                ]
+            },
+            {
+                topic: "Determine whether polygons will produce regular or semi-regular tessellations",
+                questions: [
+                    { question: "Can equilateral triangles tessellate to form a regular tessellation?", answer: "Yes, because they fit together without gaps." },
+                    { question: "Will regular pentagons tessellate to form a regular tessellation?", answer: "No, regular pentagons cannot tessellate without gaps or overlaps." },
+                    { question: "Which combination of polygons can create a semi-regular tessellation?", answer: "Squares and equilateral triangles can be combined to form a semi-regular tessellation." }
+                ]
+            },
+            {
+                topic: "Identify transformations in a tessellation",
+                questions: [
+                    { question: "What transformations are commonly found in tessellations?", answer: "Translations, rotations, and reflections." },
+                    { question: "How does rotation contribute to tessellations?", answer: "Shapes are rotated around a point to fit together without gaps." },
+                    { question: "Identify the transformation: Sliding a shape horizontally to continue a pattern.", answer: "Translation." }
+                ]
+            },
+            {
+                topic: "Identify the line symmetry of a figure",
+                questions: [
+                    { question: "What is line symmetry?", answer: "A figure has line symmetry if it can be divided into two mirror-image halves by a line." },
+                    { question: "How many lines of symmetry does a regular hexagon have?", answer: "Six lines of symmetry." },
+                    { question: "Does the letter 'A' have line symmetry? If so, how many?", answer: "Yes, one vertical line of symmetry." }
+                ]
+            },
+            {
+                topic: "Identify the rotational symmetry of a figure",
+                questions: [
+                    { question: "What is rotational symmetry?", answer: "A figure has rotational symmetry if it can be rotated less than 360° around its center and still look the same." },
+                    { question: "What is the order of rotational symmetry for a square?", answer: "Order 4, because it matches its original appearance 4 times in 360°." },
+                    { question: "Does an equilateral triangle have rotational symmetry?", answer: "Yes, of order 3." }
+                ]
+            }
+        ];
+
+        function generateQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = ''; // Clear previous questions
+
+            // Shuffle topics and pick three random ones
+            const shuffledTopics = topicsWithQuestions.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            // Add selected topics and questions to the page
+            shuffledTopics.forEach((topicObj) => {
+                const topicDiv = document.createElement('div');
+                topicDiv.className = 'question';
+                topicDiv.innerHTML = `<strong>Topic:</strong> ${topicObj.topic}<br><br>`;
+                
+                // Display questions under each topic
+                const shuffledQuestions = topicObj.questions.sort(() => 0.5 - Math.random());
+                shuffledQuestions.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.innerHTML = `<div class="question-text" onclick="toggleAnswer('answer-${topicObj.topic}-${index}')">${q.question}</div>
+                                             <div class="answer" id="answer-${topicObj.topic}-${index}">${q.answer}</div>`;
+                    topicDiv.appendChild(questionDiv);
+                });
+                
+                container.appendChild(topicDiv);
+            });
+        }
+
+        function toggleAnswer(answerId) {
+            const answerDiv = document.getElementById(answerId);
+            if (answerDiv.style.display === 'none' || answerDiv.style.display === '') {
+                answerDiv.style.display = 'block';
+            } else {
+                answerDiv.style.display = 'none';
+            }
+        }
+
+        // Generate initial set of questions when the page loads
+        window.onload = generateQuestions;
+    </script>
+    <footer>
+        <p>Created by your_email@example.com on 17/9/2024</p>
+    </footer>
+</body>
+</html>

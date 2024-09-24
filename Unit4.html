@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unit 4 Review - Track Stars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .question {
+            background-color: #e0e0e0;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .question div {
+            cursor: pointer;
+            padding: 5px;
+        }
+        .answer {
+            display: none;
+            padding-top: 10px;
+            color: green;
+            font-style: italic;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        footer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Unit 4 Review - Track Stars</h1>
+    <img src="Unit4.png" alt="Unit Poster" width="300">
+    <div class="container" id="questions-container">
+        <!-- Questions will be dynamically inserted here -->
+    </div>
+
+    <button onclick="generateQuestions()">Refresh Questions</button>
+
+    <script>
+        const topicsWithQuestions = [
+            {
+                topic: "Define and use appropriate quantities for the purpose of descriptive modeling",
+                questions: [
+                    { question: "What is descriptive modeling?", answer: "Descriptive modeling summarizes data to describe patterns or relationships within the data." },
+                    { question: "Why is it important to choose appropriate quantities in modeling?", answer: "Appropriate quantities ensure accurate and meaningful representations of the data." },
+                    { question: "Give an example of selecting appropriate quantities for modeling.", answer: "Using average income to model economic status in a region." }
+                ]
+            },
+            {
+                topic: "Choose a level of accuracy appropriate to limitations on measurements when reporting quantities",
+                questions: [
+                    { question: "What factors determine the level of accuracy in measurements?", answer: "Measurement tools' precision and the context of the data usage." },
+                    { question: "Why is it important to consider limitations on measurements?", answer: "To avoid overestimating the precision and to report realistic and reliable data." },
+                    { question: "How would you report a measurement of 3.4567 meters with a ruler marked to the nearest centimeter?", answer: "As 3.46 meters or 346 centimeters, reflecting the tool's precision." }
+                ]
+            },
+            {
+                topic: "Recognize data can be classified as measurement/quantitative or categorical/qualitative data",
+                questions: [
+                    { question: "Define quantitative data.", answer: "Data that can be measured and expressed numerically." },
+                    { question: "What is qualitative data?", answer: "Data that describes qualities or characteristics, categorized based on attributes." },
+                    { question: "Classify the following as quantitative or qualitative: 'Age', 'Favorite color'.", answer: "'Age' is quantitative; 'Favorite color' is qualitative." }
+                ]
+            },
+            {
+                topic: "Measure and analyze data of one variable (i.e., univariate data)",
+                questions: [
+                    { question: "What is univariate data?", answer: "Data consisting of observations on only a single characteristic or attribute." },
+                    { question: "Name two measures of central tendency used in univariate analysis.", answer: "Mean and median." },
+                    { question: "Why is analyzing univariate data important?", answer: "It helps understand the distribution and patterns within a single variable." }
+                ]
+            },
+            {
+                topic: "Summarize data using measures of center (mode, mean, and median) of a list of data by hand and by using technology (EXCEL)",
+                questions: [
+                    { question: "Calculate the mean of the data set: 4, 8, 6, 5, 3.", answer: "Mean = (4+8+6+5+3)/5 = 26/5 = 5.2" },
+                    { question: "Find the median of the data set: 7, 2, 9, 4, 5.", answer: "Ordered set: 2,4,5,7,9; Median = 5" },
+                    { question: "How do you find the mode of a data set?", answer: "Identify the value(s) that appear most frequently in the data set." }
+                ]
+            },
+            {
+                topic: "Find percentiles from a list of data by hand and by using technology (EXCEL)",
+                questions: [
+                    { question: "What is the 25th percentile also known as?", answer: "The first quartile (Q1)." },
+                    { question: "Explain how to find the 90th percentile in a data set.", answer: "Order the data, calculate the position using P = (n+1)(percentile/100), and find the value at that position." },
+                    { question: "In EXCEL, which function calculates the nth percentile?", answer: "The PERCENTILE.EXC(array, k) function." }
+                ]
+            },
+            {
+                topic: "Represent sets of data by using dot plots",
+                questions: [
+                    { question: "What is a dot plot?", answer: "A simple graphical display where each data point is represented by a dot above its value on a number line." },
+                    { question: "When is a dot plot most useful?", answer: "For small to moderate-sized data sets to show the distribution." },
+                    { question: "How do you construct a dot plot?", answer: "Draw a horizontal axis with the data range and stack dots above each data value for frequency." }
+                ]
+            },
+            {
+                topic: "Represent sets of data by using bar graphs (that compare categories of discrete data) or histograms (that display numerical continuous data) by hand and by using technology (EXCEL)",
+                questions: [
+                    { question: "What is the main difference between a bar graph and a histogram?", answer: "Bar graphs display categorical data with spaces between bars; histograms display continuous numerical data with bars touching." },
+                    { question: "How do you create a histogram in EXCEL?", answer: "Use the 'Histogram' tool in the Data Analysis add-in or create a frequency table and use a bar chart." },
+                    { question: "When should you use a bar graph?", answer: "When comparing different categories or groups of discrete data." }
+                ]
+            },
+            {
+                topic: "Determine appropriate graphical representations for discrete and continuous data",
+                questions: [
+                    { question: "Which graphical representation is suitable for continuous data?", answer: "Histograms or line graphs." },
+                    { question: "What type of graph is appropriate for discrete categorical data?", answer: "Bar charts or pie charts." },
+                    { question: "Why is it important to choose the correct graph type?", answer: "To accurately represent data and make it easier to interpret." }
+                ]
+            },
+            {
+                topic: "Recognize and use the terms 'population' and 'sample' in data collection",
+                questions: [
+                    { question: "Define 'population' in statistics.", answer: "The entire group of individuals or items that is the focus of a statistical study." },
+                    { question: "What is a 'sample'?", answer: "A subset of the population selected for analysis." },
+                    { question: "Why do researchers often use samples instead of populations?", answer: "Because it's usually impractical or impossible to study the entire population." }
+                ]
+            },
+            {
+                topic: "Identify potential bias in sampling methods and questions",
+                questions: [
+                    { question: "What is sampling bias?", answer: "Bias introduced when a sample is not representative of the population." },
+                    { question: "Give an example of a biased survey question.", answer: "'Don't you agree that exercise is essential for health?'" },
+                    { question: "How can selection bias occur?", answer: "When certain groups are underrepresented or overrepresented in the sample." }
+                ]
+            },
+            {
+                topic: "Identify potential bias in statistical measures i.e., data summaries",
+                questions: [
+                    { question: "How can outliers affect the mean?", answer: "Outliers can skew the mean, making it not representative of the data set." },
+                    { question: "Why might the median be a better measure than the mean in some cases?", answer: "Because it is less affected by extreme values or outliers." },
+                    { question: "What is measurement bias?", answer: "Bias resulting from errors in data collection methods or instruments." }
+                ]
+            },
+            {
+                topic: "Identify potential bias in representations of data",
+                questions: [
+                    { question: "How can the scale of a graph introduce bias?", answer: "By manipulating the scale to exaggerate or minimize apparent differences." },
+                    { question: "What is cherry-picking data?", answer: "Selecting only data that supports a specific conclusion while ignoring contradicting data." },
+                    { question: "Why is it important to use consistent intervals in a histogram?", answer: "To accurately reflect the distribution and avoid misleading representations." }
+                ]
+            },
+            {
+                topic: "Measure the spread of a list of data using the range, interquartile range, and box plots (5-number summary) by hand and by using technology (EXCEL)",
+                questions: [
+                    { question: "What are the components of a 5-number summary?", answer: "Minimum, Q1, Median, Q3, Maximum." },
+                    { question: "Calculate the range of the data set: 3, 7, 5, 9, 2.", answer: "Range = 9 - 2 = 7" },
+                    { question: "How is the interquartile range (IQR) calculated?", answer: "IQR = Q3 - Q1" }
+                ]
+            },
+            {
+                topic: "Measure the spread of a list of data using the standard deviation by hand and by using technology (EXCEL)",
+                questions: [
+                    { question: "What does standard deviation measure?", answer: "The average distance of data points from the mean." },
+                    { question: "Is a higher standard deviation indicative of more or less variability?", answer: "More variability." },
+                    { question: "Which EXCEL function calculates the standard deviation of a sample?", answer: "STDEV.S(range)" }
+                ]
+            },
+            {
+                topic: "Describe and interpret the shapes of data distributions as symmetric, negatively skewed, or positively skewed, verified by corresponding boxplots",
+                questions: [
+                    { question: "What does a positively skewed distribution look like?", answer: "The tail extends to the right; most data are on the left." },
+                    { question: "How can a boxplot indicate skewness?", answer: "By the position of the median within the box and the lengths of the whiskers." },
+                    { question: "What is a symmetric distribution?", answer: "A distribution where the left and right sides are mirror images." }
+                ]
+            },
+            {
+                topic: "Choose appropriate statistics with extreme data points",
+                questions: [
+                    { question: "When data have outliers, which measure of center is usually preferred?", answer: "The median." },
+                    { question: "Why might you use the IQR instead of the range?", answer: "Because IQR is less affected by extreme values." },
+                    { question: "How do outliers affect the standard deviation?", answer: "They increase the standard deviation." }
+                ]
+            },
+            {
+                topic: "Describe and analyze the effects that linear transformations have on measures of center and spread (optional extension)",
+                questions: [
+                    { question: "What happens to the mean when all data points are increased by a constant?", answer: "The mean increases by that constant." },
+                    { question: "How does multiplying all data by a constant affect the standard deviation?", answer: "Standard deviation is multiplied by the absolute value of that constant." },
+                    { question: "Do linear transformations affect the shape of the distribution?", answer: "No, they do not change the shape." }
+                ]
+            },
+            {
+                topic: "Compare distributions of data by looking at statistical measures and/or creating comparative bar charts, multiple histograms, and box plots",
+                questions: [
+                    { question: "Why is it useful to compare box plots of two data sets?", answer: "To compare medians, variability, and overall distribution." },
+                    { question: "What statistical measures can you compare between data sets?", answer: "Measures like mean, median, range, IQR, and standard deviation." },
+                    { question: "How can multiple histograms help in comparing data?", answer: "By visually comparing frequency distributions side by side." }
+                ]
+            },
+            {
+                topic: "Measure and analyze data in two variables (i.e., bivariate data)",
+                questions: [
+                    { question: "What is bivariate data?", answer: "Data that involves two different variables for each observation." },
+                    { question: "Give an example of bivariate data.", answer: "Height and weight measurements of individuals." },
+                    { question: "Why is analyzing bivariate data important?", answer: "To explore relationships or correlations between two variables." }
+                ]
+            },
+            {
+                topic: "Categorize the correlation of bivariate data in a scatter plot",
+                questions: [
+                    { question: "What does a positive correlation indicate?", answer: "As one variable increases, the other variable also increases." },
+                    { question: "Describe a scatter plot with no correlation.", answer: "Points are scattered randomly; no discernible pattern." },
+                    { question: "What is a negative correlation?", answer: "As one variable increases, the other variable decreases." }
+                ]
+            },
+            {
+                topic: "Make and evaluate predictions by fitting linear functions (only lines of best fit by eye) to sets of data",
+                questions: [
+                    { question: "What is a line of best fit?", answer: "A straight line that best represents the data on a scatter plot." },
+                    { question: "How can you draw a line of best fit by eye?", answer: "By positioning a line so that it has roughly equal numbers of points above and below it." },
+                    { question: "Why is the line of best fit useful?", answer: "It allows us to make predictions based on the trend." }
+                ]
+            },
+            {
+                topic: "Recognize that linear extrapolation is the use of a linear equation to predict values that are outside the range of data",
+                questions: [
+                    { question: "What is extrapolation?", answer: "Predicting values beyond the range of the given data." },
+                    { question: "Why can extrapolation be unreliable?", answer: "Because it assumes the established pattern continues, which may not be true." },
+                    { question: "Differentiate between interpolation and extrapolation.", answer: "Interpolation predicts within the data range; extrapolation predicts outside it." }
+                ]
+            },
+            {
+                topic: "Recognize that causation occurs when a change in one variable produces a change in another variable",
+                questions: [
+                    { question: "What is causation?", answer: "A relationship where one event causes another event to occur." },
+                    { question: "Give an example of causation.", answer: "Pressing a light switch causes the light to turn on." },
+                    { question: "Is correlation sufficient to prove causation?", answer: "No, correlation does not imply causation." }
+                ]
+            },
+            {
+                topic: "Recognize that correlation can be observed between many variables, which may not be a result of causation",
+                questions: [
+                    { question: "Explain spurious correlation.", answer: "A correlation between two variables that is actually caused by a third variable." },
+                    { question: "Give an example where correlation does not imply causation.", answer: "Ice cream sales and drowning incidents both increase in summer but one does not cause the other." },
+                    { question: "Why is it important to not assume causation from correlation?", answer: "Because it can lead to incorrect conclusions and decisions." }
+                ]
+            },
+            {
+                topic: "Determine correlation and causation from given data",
+                questions: [
+                    { question: "What additional information is needed to establish causation?", answer: "Controlled experiments or evidence ruling out other variables." },
+                    { question: "How can you test for causation?", answer: "By manipulating one variable and observing changes in the other." },
+                    { question: "In observational studies, can causation be definitively proven?", answer: "No, they can suggest associations but not prove causation." }
+                ]
+            },
+            {
+                topic: "Write equations of best-fit lines using only technology (EXCEL)",
+                questions: [
+                    { question: "How do you add a trendline in EXCEL?", answer: "Right-click on a data series in a chart and select 'Add Trendline'." },
+                    { question: "How can you display the equation of the trendline in EXCEL?", answer: "Check 'Display Equation on chart' in the trendline options." },
+                    { question: "What is the purpose of finding the equation of a best-fit line?", answer: "To model the relationship and make predictions." }
+                ]
+            },
+            {
+                topic: "Determine how well functions fit sets of data by graphing and analyzing a residual plot (optional extension)",
+                questions: [
+                    { question: "What is a residual in regression analysis?", answer: "The difference between the observed value and the value predicted by the model." },
+                    { question: "What does a residual plot show?", answer: "It plots residuals on the vertical axis against the independent variable on the horizontal axis." },
+                    { question: "How can you tell if a model is a good fit from a residual plot?", answer: "If residuals are randomly scattered around zero, the model is appropriate." }
+                ]
+            }
+        ];
+
+        function generateQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = ''; // Clear previous questions
+
+            // Shuffle topics and pick three random ones
+            const shuffledTopics = topicsWithQuestions.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            // Add selected topics and questions to the page
+            shuffledTopics.forEach((topicObj) => {
+                const topicDiv = document.createElement('div');
+                topicDiv.className = 'question';
+                topicDiv.innerHTML = `<strong>Topic:</strong> ${topicObj.topic}<br><br>`;
+                
+                // Display questions under each topic
+                const shuffledQuestions = topicObj.questions.sort(() => 0.5 - Math.random());
+                shuffledQuestions.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.innerHTML = `<div class="question-text" onclick="toggleAnswer('answer-${topicObj.topic}-${index}')">${q.question}</div>
+                                             <div class="answer" id="answer-${topicObj.topic}-${index}">${q.answer}</div>`;
+                    topicDiv.appendChild(questionDiv);
+                });
+                
+                container.appendChild(topicDiv);
+            });
+        }
+
+        function toggleAnswer(answerId) {
+            const answerDiv = document.getElementById(answerId);
+            if (answerDiv.style.display === 'none' || answerDiv.style.display === '') {
+                answerDiv.style.display = 'block';
+            } else {
+                answerDiv.style.display = 'none';
+            }
+        }
+
+        // Generate initial set of questions when the page loads
+        window.onload = generateQuestions;
+    </script>
+    <footer>
+        <p>Created by your_email@example.com on 17/9/2024</p>
+    </footer>
+</body>
+</html>

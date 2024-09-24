@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unit 1 Review - Lines of business</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .question {
+            background-color: #e0e0e0;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .question div {
+            cursor: pointer;
+            padding: 5px;
+        }
+        .answer {
+            display: none;
+            padding-top: 10px;
+            color: green;
+            font-style: italic;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        footer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Unit 1 Review - Lines of business</h1>
+    <img src="Unit1.png" alt="Unit Poster" width="300">
+    <div class="container" id="questions-container">
+        <!-- Questions will be dynamically inserted here -->
+    </div>
+
+    <button onclick="generateQuestions()">Refresh Questions</button>
+
+    <script>
+        const topicsWithQuestions = [
+            {
+                topic: "Write and evaluate numerical expressions by interpreting words as mathematical symbols (including brackets and exponents)",
+                questions: [
+                    { question: "Translate 'the sum of 8 and 3 squared' into a numerical expression.", answer: "8 + 3²" },
+                    { question: "Evaluate the expression: 5 × (2 + 3)².", answer: "5 × 25 = 125" },
+                    { question: "Write 'the difference of 10 and the cube of 2' as an expression.", answer: "10 - 2³" }
+                ]
+            },
+            {
+                topic: "Form and evaluate algebraic expressions by substituting values into and simplifying given expressions",
+                questions: [
+                    { question: "Evaluate 3x + 4 when x = 2.", answer: "3(2) + 4 = 6 + 4 = 10" },
+                    { question: "If y = -1, calculate y² - 5y.", answer: "(-1)² - 5(-1) = 1 + 5 = 6" },
+                    { question: "Simplify and evaluate 2(a + b) when a = 3 and b = 4.", answer: "2(3 + 4) = 2(7) = 14" }
+                ]
+            },
+            {
+                topic: "Evaluate expressions using the commutative and associative properties",
+                questions: [
+                    { question: "Use the commutative property to simplify 4 + x.", answer: "x + 4" },
+                    { question: "Simplify (2 + 3) + 5 using the associative property.", answer: "2 + (3 + 5) = 2 + 8 = 10" },
+                    { question: "Apply the commutative property to 7 × y.", answer: "y × 7" }
+                ]
+            },
+            {
+                topic: "Identify and evaluate equivalent expressions using the distributive properties",
+                questions: [
+                    { question: "Use the distributive property to expand 5(x + 2).", answer: "5x + 10" },
+                    { question: "Simplify 3(2y - 4).", answer: "6y - 12" },
+                    { question: "Factor the expression 8a + 12b.", answer: "4(2a + 3b)" }
+                ]
+            },
+            {
+                topic: "Use mathematical equations to model real-world situations",
+                questions: [
+                    { question: "Write an equation to model: 'A number decreased by 7 is 15.'", answer: "x - 7 = 15" },
+                    { question: "Model the situation: 'Twice a number plus 3 equals 11.'", answer: "2x + 3 = 11" },
+                    { question: "Formulate an equation: 'The product of a number and 5 is equal to 35.'", answer: "5x = 35" }
+                ]
+            },
+            {
+                topic: "Solve one-step equations that involve different operations",
+                questions: [
+                    { question: "Solve for x: x + 5 = 12.", answer: "x = 12 - 5; x = 7" },
+                    { question: "Find y: y/4 = 3.", answer: "y = 3 × 4; y = 12" },
+                    { question: "Solve: 7z = 21.", answer: "z = 21 ÷ 7; z = 3" }
+                ]
+            },
+            {
+                topic: "Solve multi-step equations that involve different operations",
+                questions: [
+                    { question: "Solve for x: 2x - 5 = 9.", answer: "2x = 14; x = 7" },
+                    { question: "Find y: 3(y + 2) = 15.", answer: "y + 2 = 5; y = 3" },
+                    { question: "Solve: 5a + 2a = 21.", answer: "7a = 21; a = 3" }
+                ]
+            },
+            {
+                topic: "Write, model, and solve equations that involve variables on both sides",
+                questions: [
+                    { question: "Solve: 3x + 4 = x + 10.", answer: "2x = 6; x = 3" },
+                    { question: "Find y: 2y - 5 = y + 1.", answer: "y = 6" },
+                    { question: "Solve for z: 4z - 2 = 2z + 6.", answer: "2z = 8; z = 4" }
+                ]
+            },
+            {
+                topic: "Solve equations that involve equivalent proportions",
+                questions: [
+                    { question: "Solve for x: x/3 = 4/6.", answer: "x = (4/6) × 3; x = 2" },
+                    { question: "Find y: 5/ y = 10/20.", answer: "5/y = 0.5; y = 10" },
+                    { question: "Solve: (x + 1)/2 = 3/4.", answer: "x + 1 = (3/4) × 2; x + 1 = 1.5; x = 0.5" }
+                ]
+            },
+            {
+                topic: "Rearrange equations to solve for specific variables",
+                questions: [
+                    { question: "Solve for y: 2x + y = 10.", answer: "y = 10 - 2x" },
+                    { question: "Rearrange to solve for h: A = 1/2 bh.", answer: "h = (2A)/b" },
+                    { question: "Solve for r: C = 2πr.", answer: "r = C / (2π)" }
+                ]
+            },
+            {
+                topic: "Represent relations (including horizontal and vertical lines) with graphs, ordered pairs, tables, and mappings",
+                questions: [
+                    { question: "Plot the relation defined by y = 3 for all x.", answer: "A horizontal line crossing y-axis at y = 3." },
+                    { question: "Create a table for x = -2, -1, 0, 1, 2 with y = 2x + 1.", answer: "x:-2,y:-3; x:-1,y:-1; x:0,y:1; x:1,y:3; x:2,y:5" },
+                    { question: "Describe the mapping of x to y for y = -4.", answer: "All x-values map to y = -4; horizontal line." }
+                ]
+            },
+            {
+                topic: "Interpret graphs of relations by analyzing their shapes and selecting the independent and dependent variables",
+                questions: [
+                    { question: "In the graph of distance vs. time, which is the independent variable?", answer: "Time is the independent variable." },
+                    { question: "Describe the shape of a graph representing constant speed.", answer: "A straight line with a constant slope." },
+                    { question: "If a graph is a vertical line, what can you say about the relation?", answer: "It represents x = constant; not a function." }
+                ]
+            },
+            {
+                topic: "Choose and interpret appropriate scales and origins of graphs",
+                questions: [
+                    { question: "Why is choosing the correct scale important in graphing?", answer: "It ensures accurate representation and readability of data." },
+                    { question: "What does changing the origin of a graph affect?", answer: "It shifts the graph and can change the interpretation of data." },
+                    { question: "How would you scale the y-axis for data ranging from 0 to 1000?", answer: "Use increments that accommodate the range, such as 0, 200, 400, 600, 800, 1000." }
+                ]
+            },
+            {
+                topic: "Determine whether a relation is a function and evaluate functions",
+                questions: [
+                    { question: "Is the relation {(1,2), (2,3), (1,4)} a function?", answer: "No, because x=1 maps to multiple y-values." },
+                    { question: "Evaluate f(x) = 2x + 3 when x = 5.", answer: "f(5) = 2(5) + 3 = 13" },
+                    { question: "Determine if y = x² is a function.", answer: "Yes, each x-value has exactly one y-value." }
+                ]
+            },
+            {
+                topic: "Determine whether relations are functions by analyzing mappings, tables, or graphs",
+                questions: [
+                    { question: "Given a mapping where x: 1,2,3 maps to y: 4,5,6, is it a function?", answer: "Yes, each x-value maps to one y-value." },
+                    { question: "Analyze the table: x: 1,1,2; y: 3,4,5. Is this a function?", answer: "No, x=1 has two different y-values." },
+                    { question: "Is a circle graph (relation y² + x² = r²) a function?", answer: "No, it fails the vertical line test." }
+                ]
+            },
+            {
+                topic: "Use a sketch to determine whether relations are functions",
+                questions: [
+                    { question: "Does the graph of a parabola opening upwards represent a function?", answer: "Yes, it passes the vertical line test." },
+                    { question: "Is a horizontal line y = 4 a function?", answer: "Yes, each x-value maps to one y-value." },
+                    { question: "Sketch y = |x|. Is it a function?", answer: "Yes, absolute value functions are functions." }
+                ]
+            },
+            {
+                topic: "Identify and categorize functions as linear or nonlinear, and continuous or discrete",
+                questions: [
+                    { question: "Is y = 2x + 3 linear or nonlinear?", answer: "Linear" },
+                    { question: "Classify y = x² as linear or nonlinear.", answer: "Nonlinear" },
+                    { question: "Is the function representing the number of people in a room over time continuous or discrete?", answer: "Discrete" }
+                ]
+            },
+            {
+                topic: "Analyze the graphs or tables of functions to identify the intercepts of the functions and determine their meaning in real-world contexts",
+                questions: [
+                    { question: "Find the y-intercept of y = 3x - 6.", answer: "Y-intercept at (0, -6)" },
+                    { question: "What is the x-intercept of y = -2x + 4?", answer: "X-intercept at (2, 0)" },
+                    { question: "Explain the meaning of the y-intercept in a cost function C(x) = 50x + 200.", answer: "The y-intercept represents the fixed cost of $200." }
+                ]
+            },
+            {
+                topic: "Identify intercepts of functions and solve equations by graphing",
+                questions: [
+                    { question: "Graph y = x - 5 and find its x-intercept.", answer: "X-intercept at (5, 0)" },
+                    { question: "Solve the equation x² - 4 = 0 by graphing y = x² - 4.", answer: "Roots at x = -2 and x = 2" },
+                    { question: "Find where y = 2x + 1 crosses the x-axis.", answer: "At x = -0.5" }
+                ]
+            },
+            {
+                topic: "Identify symmetry, extrema (maximum/minimums), where a function is increasing and/or decreasing, and end behavior of functions",
+                questions: [
+                    { question: "Does the function y = x² have symmetry?", answer: "Yes, it's symmetric about the y-axis." },
+                    { question: "Find the minimum of y = (x - 3)².", answer: "Minimum at x = 3, y = 0" },
+                    { question: "Describe the end behavior of y = -x³.", answer: "As x → ∞, y → -∞; As x → -∞, y → ∞" }
+                ]
+            },
+            {
+                topic: "Sketch graphs of functions and compare properties of functions",
+                questions: [
+                    { question: "Sketch y = x and y = x². Which grows faster as x increases?", answer: "y = x² grows faster." },
+                    { question: "Compare the slopes of y = 2x and y = 0.5x.", answer: "y = 2x has a steeper slope." },
+                    { question: "Graph y = |x| and y = -|x|. How do they differ?", answer: "One opens upwards, the other downwards." }
+                ]
+            },
+            {
+                topic: "Graph linear functions by using tables and intercepts",
+                questions: [
+                    { question: "Graph y = -2x + 4 using intercepts.", answer: "Y-intercept at (0,4); X-intercept at (2,0)" },
+                    { question: "Create a table for y = x/2 - 1 and graph.", answer: "Sample points: (2,0); (4,1); (6,2)" },
+                    { question: "Graph y = 3x using the origin and one other point.", answer: "Points: (0,0) and (1,3)" }
+                ]
+            },
+            {
+                topic: "Find and interpret the rate of change and slopes of lines",
+                questions: [
+                    { question: "Find the slope of the line passing through (2,3) and (5,9).", answer: "Slope = (9-3)/(5-2) = 6/3 = 2" },
+                    { question: "What does the slope represent in the equation y = 4x + 1?", answer: "The rate of change; for every increase of 1 in x, y increases by 4." },
+                    { question: "Calculate the rate of change for y = -0.5x + 7.", answer: "Slope = -0.5" }
+                ]
+            },
+            {
+                topic: "Graph equations in slope-intercept form and prove that linear functions grow by equal differences over equal intervals",
+                questions: [
+                    { question: "Graph y = 2x - 3.", answer: "Y-intercept at (0, -3); slope of 2" },
+                    { question: "Explain how y = mx + b shows linear growth.", answer: "For every unit increase in x, y increases by m units." },
+                    { question: "Demonstrate that y = -x + 5 grows by equal differences.", answer: "Slope = -1; y decreases by 1 for every increase of 1 in x." }
+                ]
+            },
+            {
+                topic: "Identify the effects of transformations of the graphs of linear functions",
+                questions: [
+                    { question: "How does adding a constant to y = x affect the graph?", answer: "It shifts the graph vertically." },
+                    { question: "Describe the transformation from y = x to y = 2x.", answer: "The graph becomes steeper; vertical stretch." },
+                    { question: "What happens to the graph of y = x when it becomes y = x - 4?", answer: "Shifts down by 4 units." }
+                ]
+            },
+            {
+                topic: "Write, graph, and solve equations of arithmetic sequences",
+                questions: [
+                    { question: "Write the nth term of the sequence: 5, 8, 11, 14...", answer: "An = 5 + 3(n - 1)" },
+                    { question: "Find the 10th term of the sequence with An = 2n + 1.", answer: "An = 2(10) + 1 = 21" },
+                    { question: "Graph the sequence An = 4n - 2.", answer: "Plot discrete points at n = 1,2,3..." }
+                ]
+            },
+            {
+                topic: "Graph piecewise functions and step functions",
+                questions: [
+                    { question: "Sketch the piecewise function: f(x) = { x + 2 for x < 0, 2x for x ≥ 0 }.", answer: "Two different lines meeting at x = 0." },
+                    { question: "What is a step function?", answer: "A function that increases or decreases abruptly at certain values, resembling steps." },
+                    { question: "Graph the greatest integer function y = ⎣x⎦.", answer: "A step function where y is the greatest integer less than or equal to x." }
+                ]
+            },
+            {
+                topic: "Write linear equations in slope-intercept form",
+                questions: [
+                    { question: "Write the equation of a line with slope 3 and y-intercept -2.", answer: "y = 3x - 2" },
+                    { question: "Find the slope-intercept form of a line passing through (0,5) with slope -1.", answer: "y = -x + 5" },
+                    { question: "Convert 2y = 6x + 4 to slope-intercept form.", answer: "y = 3x + 2" }
+                ]
+            },
+            {
+                topic: "Write linear equations in standard form and point-slope form",
+                questions: [
+                    { question: "Express y = 2x + 3 in standard form.", answer: "-2x + y = 3" },
+                    { question: "Write the equation of a line passing through (4,1) with slope 5 in point-slope form.", answer: "y - 1 = 5(x - 4)" },
+                    { question: "Convert y = -0.5x + 2 to standard form.", answer: "Multiply both sides by 2: 2y = -x + 4; rearranged: x + 2y = 4" }
+                ]
+            },
+            {
+                topic: "Find inverse relations and apply inverse linear functions",
+                questions: [
+                    { question: "Find the inverse of the function y = 3x + 6.", answer: "Swap x and y: x = 3y + 6; Solve for y: y = (x - 6)/3" },
+                    { question: "Determine if y = 2x is its own inverse.", answer: "No, the inverse is y = x/2" },
+                    { question: "Apply the inverse function to x = 10 for y = x - 4.", answer: "Inverse: y = x + 4; So y = 10 + 4 = 14" }
+                ]
+            }
+        ];
+
+        function generateQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = ''; // Clear previous questions
+
+            // Shuffle topics and pick three random ones
+            const shuffledTopics = topicsWithQuestions.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            // Add selected topics and questions to the page
+            shuffledTopics.forEach((topicObj) => {
+                const topicDiv = document.createElement('div');
+                topicDiv.className = 'question';
+                topicDiv.innerHTML = `<strong>Topic:</strong> ${topicObj.topic}<br><br>`;
+                
+                // Display questions under each topic
+                const shuffledQuestions = topicObj.questions.sort(() => 0.5 - Math.random());
+                shuffledQuestions.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.innerHTML = `<div class="question-text" onclick="toggleAnswer('answer-${topicObj.topic}-${index}')">${q.question}</div>
+                                             <div class="answer" id="answer-${topicObj.topic}-${index}">${q.answer}</div>`;
+                    topicDiv.appendChild(questionDiv);
+                });
+                
+                container.appendChild(topicDiv);
+            });
+        }
+
+        function toggleAnswer(answerId) {
+            const answerDiv = document.getElementById(answerId);
+            if (answerDiv.style.display === 'none' || answerDiv.style.display === '') {
+                answerDiv.style.display = 'block';
+            } else {
+                answerDiv.style.display = 'none';
+            }
+        }
+
+        // Generate initial set of questions when the page loads
+        window.onload = generateQuestions;
+    </script>
+    <footer>
+        <p>Created by your_email@example.com on 17/9/2024</p>
+    </footer>
+</body>
+</html>
