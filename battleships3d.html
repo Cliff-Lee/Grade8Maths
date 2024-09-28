@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Coordinate Geometry Battleships - Enhanced Version</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+        #interface {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 350px;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 1;
+        }
+        #interface h2 {
+            margin-top: 0;
+        }
+        #interface input[type="text"] {
+            width: 50px;
+            margin-right: 5px;
+        }
+        #interface select {
+            margin-right: 5px;
+        }
+        #interface button {
+            margin-top: 10px;
+        }
+        #messageBox {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1;
+        }
+        #questionBox {
+            margin-top: 10px;
+        }
+        #questionOptions button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            text-align: left;
+        }
+        /* Instructions Modal */
+        #instructionsModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #instructionsContent {
+            background: #fff;
+            padding: 20px;
+            width: 550px;
+            max-width: 90%;
+            border-radius: 5px;
+            text-align: left;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+        #instructionsContent h2 {
+            margin-top: 0;
+        }
+        #instructionsContent ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        #instructionsContent button {
+            display: block;
+            margin: 20px auto 0 auto;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Instructions Modal -->
+    <div id="instructionsModal">
+        <div id="instructionsContent">
+            <h2>Welcome to 3D Coordinate Geometry Battleships! Created by cliffpackman@gmail.com on 28/9/2024</h2>
+            <p><strong>Objective:</strong> Sink all of the computer's ships before it sinks yours by correctly solving geometric problems and strategically attacking.</p>
+            <h3>Game Instructions:</h3>
+            <ul>
+                <li><strong>Number of Ships:</strong> You have <strong>3 ships</strong> to place.</li>
+                <li><strong>Ship Lengths:</strong> Ships have lengths of <strong>4</strong>, <strong>3</strong>, and <strong>2 units</strong>.</li>
+                <li><strong>Placing Ships:</strong>
+                    <ul>
+                        <li>Enter integer values for the starting \( x \), \( y \), and \( z \) coordinates (multiples of 2 from -6 to 6).</li>
+                        <li>Select the ship length and orientation (along axes or diagonally).</li>
+                        <li>Click "Place Ship" to place your ship.</li>
+                    </ul>
+                </li>
+                <li><strong>Answering Questions:</strong> During your turn, solve multiple-choice geometry questions to earn the right to attack.</li>
+                <li><strong>Attacking:</strong> After answering correctly, enter the coordinates to attack the computer's ships.</li>
+                <li><strong>Winning:</strong> The first to sink all of the opponent's ships wins the game.</li>
+                <li><strong>Camera Controls:</strong> Use your mouse to rotate and zoom the 3D grid.</li>
+            </ul>
+            <button onclick="closeInstructions()">Start Game</button>
+        </div>
+    </div>
+
+    <div id="interface">
+        <h2 id="phaseTitle">Ship Placement</h2>
+        <div id="shipPlacementSection">
+            <p id="placementMessage">Place your ships (3 remaining).</p>
+            <p>
+                <label>Start X: <input type="text" id="shipXInput"></label>
+                <label>Y: <input type="text" id="shipYInput"></label>
+                <label>Z: <input type="text" id="shipZInput"></label>
+            </p>
+            <p>
+                <label>Length:
+                    <select id="shipLengthSelect">
+                        <option value="4">4</option>
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                    </select>
+                </label>
+                <label>Orientation:
+                    <select id="shipOrientationSelect">
+                        <option value="x">Along X-axis</option>
+                        <option value="y">Along Y-axis</option>
+                        <option value="z">Along Z-axis</option>
+                        <option value="xy">Diagonal XY</option>
+                        <option value="xz">Diagonal XZ</option>
+                        <option value="yz">Diagonal YZ</option>
+                        <option value="xyz">Diagonal XYZ</option>
+                    </select>
+                </label>
+            </p>
+            <button id="placeShipButton" onclick="placePlayerShip()">Place Ship</button>
+            <button id="startGameButton" onclick="startGame()" style="display:none;">Proceed to Battle Phase</button>
+        </div>
+        <div id="battleSection" style="display:none;">
+            <p id="questionText">Solve this problem to attack!</p>
+            <div id="questionBox">
+                <p id="generatedQuestion"></p>
+                <div id="questionOptions"></div>
+            </div>
+            <div id="attackInput" style="display:none;">
+                <p>
+                    <label>X: <input type="text" id="attackXInput"></label>
+                    <label>Y: <input type="text" id="attackYInput"></label>
+                    <label>Z: <input type="text" id="attackZInput"></label>
+                </p>
+                <button onclick="playerAttack()">Attack</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="messageBox">
+        <p id="gameMessage">Welcome to 3D Coordinate Geometry Battleships! Created by cliffpackman@gmail.com on 28/9/2024</p>
+    </div>
+
+    <!-- Include Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Include OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Include MathJax library -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        // Set up the scene, camera, and renderer
+        let scene, camera, renderer, controls;
+        let playerShips = [];
+        let computerShips = [];
+        let playerHits = [];
+        let computerHits = [];
+        let gridSize = 6; // Grid size (6x6x6)
+        let cubeSize = 2;  // Size of each cube
+        let placingShips = true;
+        let shipsToPlace = [
+            { length: 4, placed: false },
+            { length: 3, placed: false },
+            { length: 2, placed: false },
+        ];
+        let currentShipIndex = 0;
+        let currentAnswer = '';
+        let currentOptions = [];
+        let gameOver = false;
+
+        function closeInstructions() {
+            document.getElementById('instructionsModal').style.display = 'none';
+            init();
+            animate();
+        }
+
+        function init() {
+            // Create the scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB); // Light blue background
+
+            // Set up the camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(20, 20, 20);
+            camera.lookAt(0, 0, 0);
+
+            // Create the renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // OrbitControls for camera interaction
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.update();
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xcccccc, 0.8);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            directionalLight.position.set(50, 50, -50);
+            scene.add(directionalLight);
+
+            // Create the grid and axes
+            createGrid();
+            createAxesLabels();
+
+            // Place computer ships
+            placeComputerShips();
+
+            // Event listeners
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function createGrid() {
+            // Create grid helper
+            const size = gridSize * cubeSize;
+            const divisions = gridSize;
+
+            const gridHelperXY = new THREE.GridHelper(size, divisions, 0x888888, 0x888888);
+            gridHelperXY.rotation.x = Math.PI / 2;
+            scene.add(gridHelperXY);
+
+            const gridHelperXZ = new THREE.GridHelper(size, divisions, 0x888888, 0x888888);
+            scene.add(gridHelperXZ);
+
+            const gridHelperYZ = new THREE.GridHelper(size, divisions, 0x888888, 0x888888);
+            gridHelperYZ.rotation.z = Math.PI / 2;
+            scene.add(gridHelperYZ);
+        }
+
+        function createAxesLabels() {
+            // Axes helper
+            const axesLength = (gridSize / 2) * cubeSize + 2;
+            const axesHelper = new THREE.AxesHelper(axesLength);
+            scene.add(axesHelper);
+
+            // Create axis labels
+            const loader = new THREE.FontLoader();
+            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
+                // X Axis Label
+                const xLabelGeometry = new THREE.TextGeometry('X', {
+                    font: font,
+                    size: 1,
+                    height: 0.2,
+                });
+                const xLabelMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                const xLabelMesh = new THREE.Mesh(xLabelGeometry, xLabelMaterial);
+                xLabelMesh.position.set(axesLength, 0, 0);
+                scene.add(xLabelMesh);
+
+                // Y Axis Label
+                const yLabelGeometry = new THREE.TextGeometry('Y', {
+                    font: font,
+                    size: 1,
+                    height: 0.2,
+                });
+                const yLabelMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+                const yLabelMesh = new THREE.Mesh(yLabelGeometry, yLabelMaterial);
+                yLabelMesh.position.set(0, axesLength, 0);
+                scene.add(yLabelMesh);
+
+                // Z Axis Label
+                const zLabelGeometry = new THREE.TextGeometry('Z', {
+                    font: font,
+                    size: 1,
+                    height: 0.2,
+                });
+                const zLabelMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+                const zLabelMesh = new THREE.Mesh(zLabelGeometry, zLabelMaterial);
+                zLabelMesh.position.set(0, 0, axesLength);
+                scene.add(zLabelMesh);
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function placePlayerShip() {
+            if (gameOver || !placingShips) return;
+
+            const xInput = document.getElementById('shipXInput').value;
+            const yInput = document.getElementById('shipYInput').value;
+            const zInput = document.getElementById('shipZInput').value;
+            const length = shipsToPlace[currentShipIndex].length;
+            const orientation = document.getElementById('shipOrientationSelect').value;
+
+            const x = parseInt(xInput);
+            const y = parseInt(yInput);
+            const z = parseInt(zInput);
+
+            if (isNaN(x) || isNaN(y) || isNaN(z)) {
+                updateGameMessage('Invalid coordinates. Please enter integer values.');
+                return;
+            }
+
+            if (x % 2 !== 0 || y % 2 !== 0 || z % 2 !== 0) {
+                updateGameMessage('Coordinates must be multiples of 2.');
+                return;
+            }
+
+            // Check if coordinates are within grid bounds
+            const halfGrid = (gridSize / 2) * cubeSize;
+            if (x < -halfGrid || x > halfGrid || y < -halfGrid || y > halfGrid || z < -halfGrid || z > halfGrid) {
+                updateGameMessage('Coordinates are out of bounds.');
+                return;
+            }
+
+            // Generate ship positions based on length and orientation
+            const shipPositions = [];
+            for (let i = 0; i < length; i++) {
+                let posX = x;
+                let posY = y;
+                let posZ = z;
+
+                if (orientation.includes('x')) posX += i * cubeSize;
+                if (orientation.includes('y')) posY += i * cubeSize;
+                if (orientation.includes('z')) posZ += i * cubeSize;
+
+                // Check bounds for each segment
+                if (posX < -halfGrid || posX > halfGrid || posY < -halfGrid || posY > halfGrid || posZ < -halfGrid || posZ > halfGrid) {
+                    updateGameMessage('Ship placement goes out of bounds.');
+                    return;
+                }
+
+                shipPositions.push({ x: posX, y: posY, z: posZ });
+            }
+
+            // Check for overlap with existing ships
+            for (const pos of shipPositions) {
+                if (playerShips.find(ship => ship.x === pos.x && ship.y === pos.y && ship.z === pos.z)) {
+                    updateGameMessage('Ship placement overlaps with existing ships.');
+                    return;
+                }
+            }
+
+            // Place ship segments
+            const shipMeshes = [];
+            for (const pos of shipPositions) {
+                const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+                const material = new THREE.MeshLambertMaterial({ color: 0x0000ff });
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.set(pos.x, pos.y, pos.z);
+                cube.name = 'playerShip';
+                scene.add(cube);
+                shipMeshes.push(cube);
+
+                // Add to player's ship positions
+                playerShips.push({ x: pos.x, y: pos.y, z: pos.z, mesh: cube });
+            }
+
+            shipsToPlace[currentShipIndex].placed = true;
+            currentShipIndex++;
+            const shipsRemaining = shipsToPlace.length - currentShipIndex;
+            updatePlacementMessage(`Place your ships (${shipsRemaining} remaining).`);
+
+            if (shipsRemaining === 0) {
+                placingShips = false;
+                document.getElementById('startGameButton').style.display = 'inline-block';
+                updatePlacementMessage('All ships placed.');
+                updateGameMessage('Click "Proceed to Battle Phase" to begin.');
+            }
+        }
+
+        function startGame() {
+            document.getElementById('shipPlacementSection').style.display = 'none';
+            document.getElementById('battleSection').style.display = 'block';
+            document.getElementById('phaseTitle').textContent = 'Battle Phase';
+            updateGameMessage('Your turn! Solve the question to attack.');
+            askQuestion();
+        }
+
+        function placeComputerShips() {
+            computerShips = [];
+            for (const ship of shipsToPlace) {
+                let placed = false;
+                while (!placed) {
+                    const x = (Math.floor(Math.random() * gridSize) - gridSize / 2) * cubeSize;
+                    const y = (Math.floor(Math.random() * gridSize) - gridSize / 2) * cubeSize;
+                    const z = (Math.floor(Math.random() * gridSize) - gridSize / 2) * cubeSize;
+
+                    const orientations = ['x', 'y', 'z', 'xy', 'xz', 'yz', 'xyz'];
+                    const orientation = orientations[Math.floor(Math.random() * orientations.length)];
+
+                    const shipPositions = [];
+                    for (let i = 0; i < ship.length; i++) {
+                        let posX = x;
+                        let posY = y;
+                        let posZ = z;
+
+                        if (orientation.includes('x')) posX += i * cubeSize;
+                        if (orientation.includes('y')) posY += i * cubeSize;
+                        if (orientation.includes('z')) posZ += i * cubeSize;
+
+                        // Check bounds for each segment
+                        const halfGrid = (gridSize / 2) * cubeSize;
+                        if (posX < -halfGrid || posX > halfGrid || posY < -halfGrid || posY > halfGrid || posZ < -halfGrid || posZ > halfGrid) {
+                            break;
+                        }
+
+                        shipPositions.push({ x: posX, y: posY, z: posZ });
+                    }
+
+                    if (shipPositions.length !== ship.length) continue;
+
+                    // Check for overlap with existing ships
+                    let overlap = false;
+                    for (const pos of shipPositions) {
+                        if (computerShips.find(s => s.x === pos.x && s.y === pos.y && s.z === pos.z)) {
+                            overlap = true;
+                            break;
+                        }
+                    }
+
+                    if (overlap) continue;
+
+                    // Place ship
+                    computerShips = computerShips.concat(shipPositions);
+                    placed = true;
+                }
+            }
+        }
+
+        // Include the generateQuestion, askQuestion, checkAnswer, playerAttack, computerTurn, updateGameMessage, updatePlacementMessage, and animate functions here.
+
+        function generateQuestion() {
+            // Expanded question types
+            const questionTypes = [
+                'identify_points_lines_planes',
+                'collinear_coplanar',
+                'intersections',
+                'distance_number_line',
+                'pythagorean_theorem',
+                'distance_coordinate_plane',
+                'partition_number_line',
+                'partition_coordinate_plane',
+                'midpoint_number_line',
+                'midpoint_coordinate_plane',
+                'segment_bisector'
+            ];
+            const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+
+            let questionText = '';
+            let correctAnswer = '';
+
+            if (type === 'identify_points_lines_planes') {
+                questionText = 'Which of the following best describes a plane?';
+                correctAnswer = 'A flat surface that extends infinitely in all directions.';
+                currentOptions = [
+                    correctAnswer,
+                    'A line with two endpoints.',
+                    'A part of a line that extends infinitely in one direction.',
+                    'A set of points that are all the same distance from a central point.'
+                ];
+            } else if (type === 'collinear_coplanar') {
+                questionText = 'Points that lie on the same line are called ________.';
+                correctAnswer = 'Collinear points';
+                currentOptions = [
+                    correctAnswer,
+                    'Coplanar points',
+                    'Concurrent points',
+                    'Intersecting points'
+                ];
+            } else if (type === 'intersections') {
+                questionText = 'What is the intersection of two distinct planes?';
+                correctAnswer = 'A line';
+                currentOptions = [
+                    correctAnswer,
+                    'A point',
+                    'A plane',
+                    'An angle'
+                ];
+            } else if (type === 'distance_number_line') {
+                const a = Math.floor(Math.random() * 20) - 10;
+                const b = Math.floor(Math.random() * 20) - 10;
+                questionText = `Find the distance between points \\( A(${a}) \\) and \\( B(${b}) \\) on a number line.`;
+                const distance = Math.abs(b - a);
+                correctAnswer = distance.toString();
+                currentOptions = [
+                    correctAnswer,
+                    (distance + 2).toString(),
+                    (distance - 2).toString(),
+                    (distance + 1).toString()
+                ];
+            } else if (type === 'pythagorean_theorem') {
+                const a = Math.floor(Math.random() * 10) + 1;
+                const b = Math.floor(Math.random() * 10) + 1;
+                questionText = `In a right-angled triangle, if the legs are \\( a = ${a} \\) units and \\( b = ${b} \\) units, find the hypotenuse \\( c \\).`;
+                const c = Math.sqrt(a * a + b * b).toFixed(2);
+                correctAnswer = c.toString();
+                currentOptions = [
+                    correctAnswer,
+                    (parseFloat(c) + 2).toFixed(2),
+                    (parseFloat(c) - 2).toFixed(2),
+                    (parseFloat(c) + 1).toFixed(2)
+                ];
+            } else if (type === 'distance_coordinate_plane') {
+                const x1 = Math.floor(Math.random() * 20) - 10;
+                const y1 = Math.floor(Math.random() * 20) - 10;
+                const x2 = Math.floor(Math.random() * 20) - 10;
+                const y2 = Math.floor(Math.random() * 20) - 10;
+                questionText = `Find the distance between points \\( A(${x1}, ${y1}) \\) and \\( B(${x2}, ${y2}) \\).`;
+                const distance = Math.sqrt(
+                    Math.pow(x2 - x1, 2) +
+                    Math.pow(y2 - y1, 2)
+                ).toFixed(2);
+                correctAnswer = distance.toString();
+                currentOptions = [
+                    correctAnswer,
+                    (parseFloat(distance) + 2).toFixed(2),
+                    (parseFloat(distance) - 2).toFixed(2),
+                    (parseFloat(distance) + 1).toFixed(2)
+                ];
+            } else if (type === 'partition_number_line') {
+                const a = Math.floor(Math.random() * 20) - 10;
+                const b = Math.floor(Math.random() * 20) - 10;
+                const m = Math.floor(Math.random() * 5) + 1;
+                const n = Math.floor(Math.random() * 5) + 1;
+                questionText = `Find the point that divides the segment between \\( A(${a}) \\) and \\( B(${b}) \\) in the ratio \\( ${m}:${n} \\).`;
+                const point = ((n * a + m * b) / (m + n)).toFixed(2);
+                correctAnswer = point.toString();
+                currentOptions = [
+                    correctAnswer,
+                    (parseFloat(point) + 2).toFixed(2),
+                    (parseFloat(point) - 2).toFixed(2),
+                    (parseFloat(point) + 1).toFixed(2)
+                ];
+            } else if (type === 'partition_coordinate_plane') {
+                const x1 = Math.floor(Math.random() * 20) - 10;
+                const y1 = Math.floor(Math.random() * 20) - 10;
+                const x2 = Math.floor(Math.random() * 20) - 10;
+                const y2 = Math.floor(Math.random() * 20) - 10;
+                const m = Math.floor(Math.random() * 5) + 1;
+                const n = Math.floor(Math.random() * 5) + 1;
+                questionText = `Find the point that divides the segment between \\( A(${x1}, ${y1}) \\) and \\( B(${x2}, ${y2}) \\) in the ratio \\( ${m}:${n} \\).`;
+                const px = ((n * x1 + m * x2) / (m + n)).toFixed(2);
+                const py = ((n * y1 + m * y2) / (m + n)).toFixed(2);
+                correctAnswer = `(${px}, ${py})`;
+                currentOptions = [
+                    correctAnswer,
+                    `(${(parseFloat(px) + 2).toFixed(2)}, ${(parseFloat(py) + 2).toFixed(2)})`,
+                    `(${(parseFloat(px) - 2).toFixed(2)}, ${(parseFloat(py) - 2).toFixed(2)})`,
+                    `(${(parseFloat(px) + 1).toFixed(2)}, ${(parseFloat(py) + 1).toFixed(2)})`
+                ];
+            } else if (type === 'midpoint_number_line') {
+                const a = Math.floor(Math.random() * 20) - 10;
+                const b = Math.floor(Math.random() * 20) - 10;
+                questionText = `Find the midpoint between points \\( A(${a}) \\) and \\( B(${b}) \\) on a number line.`;
+                const midpoint = ((a + b) / 2).toFixed(2);
+                correctAnswer = midpoint.toString();
+                currentOptions = [
+                    correctAnswer,
+                    (parseFloat(midpoint) + 2).toFixed(2),
+                    (parseFloat(midpoint) - 2).toFixed(2),
+                    (parseFloat(midpoint) + 1).toFixed(2)
+                ];
+            } else if (type === 'midpoint_coordinate_plane') {
+                const x1 = Math.floor(Math.random() * 20) - 10;
+                const y1 = Math.floor(Math.random() * 20) - 10;
+                const x2 = Math.floor(Math.random() * 20) - 10;
+                const y2 = Math.floor(Math.random() * 20) - 10;
+                questionText = `Find the midpoint between points \\( A(${x1}, ${y1}) \\) and \\( B(${x2}, ${y2}) \\).`;
+                const mx = ((x1 + x2) / 2).toFixed(2);
+                const my = ((y1 + y2) / 2).toFixed(2);
+                correctAnswer = `(${mx}, ${my})`;
+                currentOptions = [
+                    correctAnswer,
+                    `(${(parseFloat(mx) + 2).toFixed(2)}, ${(parseFloat(my) + 2).toFixed(2)})`,
+                    `(${(parseFloat(mx) - 2).toFixed(2)}, ${(parseFloat(my) - 2).toFixed(2)})`,
+                    `(${(parseFloat(mx) + 1).toFixed(2)}, ${(parseFloat(my) + 1).toFixed(2)})`
+                ];
+            } else if (type === 'segment_bisector') {
+                questionText = 'A segment bisector divides a line segment into two ________ parts.';
+                correctAnswer = 'Congruent';
+                currentOptions = [
+                    correctAnswer,
+                    'Unequal',
+                    'Perpendicular',
+                    'Parallel'
+                ];
+            } else {
+                // Default to distance in 3D space
+                const x1 = Math.floor(Math.random() * 20) - 10;
+                const y1 = Math.floor(Math.random() * 20) - 10;
+                const z1 = Math.floor(Math.random() * 20) - 10;
+                const x2 = Math.floor(Math.random() * 20) - 10;
+                const y2 = Math.floor(Math.random() * 20) - 10;
+                const z2 = Math.floor(Math.random() * 20) - 10;
+                questionText = `Find the distance between points \\( A(${x1}, ${y1}, ${z1}) \\) and \\( B(${x2}, ${y2}, ${z2}) \\).`;
+                const distance = Math.sqrt(
+                    Math.pow(x2 - x1, 2) +
+                    Math.pow(y2 - y1, 2) +
+                    Math.pow(z2 - z1, 2)
+                ).toFixed(2);
+                correctAnswer = distance.toString();
+                currentOptions = [
+                    correctAnswer,
+                    (parseFloat(distance) + 2).toFixed(2),
+                    (parseFloat(distance) - 2).toFixed(2),
+                    (parseFloat(distance) + 1).toFixed(2)
+                ];
+            }
+
+            // Shuffle options
+            currentOptions = shuffleArray(currentOptions);
+
+            return { questionText, correctAnswer };
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function askQuestion() {
+            const { questionText, correctAnswer } = generateQuestion();
+            document.getElementById('generatedQuestion').innerHTML = questionText;
+            currentAnswer = correctAnswer;
+            document.getElementById('questionOptions').innerHTML = '';
+
+            currentOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.onclick = () => checkAnswer(option);
+                document.getElementById('questionOptions').appendChild(button);
+            });
+
+            document.getElementById('questionBox').style.display = 'block';
+            document.getElementById('attackInput').style.display = 'none';
+
+            // Re-render MathJax in the question text
+            MathJax.typesetPromise([document.getElementById('generatedQuestion')]);
+        }
+
+        function checkAnswer(selectedOption) {
+            if (selectedOption === currentAnswer) {
+                updateGameMessage('Correct! Enter coordinates to attack.');
+                document.getElementById('questionBox').style.display = 'none';
+                document.getElementById('attackInput').style.display = 'block';
+            } else {
+                updateGameMessage('Incorrect. Computer\'s turn.');
+                document.getElementById('questionBox').style.display = 'none';
+                currentAnswer = '';
+                setTimeout(computerTurn, 2000);
+            }
+        }
+
+        function playerAttack() {
+            if (gameOver) return;
+
+            const xInput = document.getElementById('attackXInput').value;
+            const yInput = document.getElementById('attackYInput').value;
+            const zInput = document.getElementById('attackZInput').value;
+
+            const x = parseInt(xInput);
+            const y = parseInt(yInput);
+            const z = parseInt(zInput);
+
+            if (isNaN(x) || isNaN(y) || isNaN(z)) {
+                updateGameMessage('Invalid coordinates. Please enter integer values.');
+                return;
+            }
+
+            if (x % 2 !== 0 || y % 2 !== 0 || z % 2 !== 0) {
+                updateGameMessage('Coordinates must be multiples of 2.');
+                return;
+            }
+
+            // Check if coordinates are within grid bounds
+            const halfGrid = (gridSize / 2) * cubeSize;
+            if (x < -halfGrid || x > halfGrid || y < -halfGrid || y > halfGrid || z < -halfGrid || z > halfGrid) {
+                updateGameMessage('Coordinates are out of bounds.');
+                return;
+            }
+
+            // Adjust coordinates to grid alignment
+            const adjustedX = x;
+            const adjustedY = y;
+            const adjustedZ = z;
+
+            // Prevent multiple attacks on the same position
+            if (playerHits.find(hit => hit.x === adjustedX && hit.y === adjustedY && hit.z === adjustedZ)) {
+                updateGameMessage('You have already attacked this position.');
+                return;
+            }
+
+            // Check if it's a hit
+            const hitIndex = computerShips.findIndex(ship => ship.x === adjustedX && ship.y === adjustedY && ship.z === adjustedZ);
+            if (hitIndex !== -1) {
+                // It's a hit
+                updateGameMessage('Hit!');
+                // Mark hit on the scene
+                const geometry = new THREE.SphereGeometry(cubeSize / 2, 16, 16);
+                const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+                const sphere = new THREE.Mesh(geometry, material);
+                sphere.position.set(adjustedX, adjustedY, adjustedZ);
+                sphere.name = 'playerHit';
+                scene.add(sphere);
+
+                playerHits.push({ x: adjustedX, y: adjustedY, z: adjustedZ });
+                computerShips.splice(hitIndex, 1);
+
+                // Check for win condition
+                if (computerShips.length === 0) {
+                    updateGameMessage('You win!');
+                    gameOver = true;
+                } else {
+                    currentAnswer = '';
+                    document.getElementById('attackInput').style.display = 'none';
+                    setTimeout(computerTurn, 2000);
+                }
+            } else {
+                // Miss
+                updateGameMessage('Miss!');
+                // Mark miss on the scene
+                const geometry = new THREE.SphereGeometry(cubeSize / 4, 8, 8);
+                const material = new THREE.MeshLambertMaterial({ color: 0x000000 });
+                const sphere = new THREE.Mesh(geometry, material);
+                sphere.position.set(adjustedX, adjustedY, adjustedZ);
+                sphere.name = 'playerMiss';
+                scene.add(sphere);
+
+                playerHits.push({ x: adjustedX, y: adjustedY, z: adjustedZ });
+
+                currentAnswer = '';
+                document.getElementById('attackInput').style.display = 'none';
+                setTimeout(computerTurn, 2000);
+            }
+        }
+
+        function computerTurn() {
+            if (gameOver) return;
+            updateGameMessage('Computer is thinking...');
+            setTimeout(() => {
+                let x, y, z;
+                // Simple AI for demonstration
+                do {
+                    x = (Math.floor(Math.random() * gridSize) - gridSize / 2) * cubeSize;
+                    y = (Math.floor(Math.random() * gridSize) - gridSize / 2) * cubeSize;
+                    z = (Math.floor(Math.random() * gridSize) - gridSize / 2) * cubeSize;
+                } while (computerHits.find(hit => hit.x === x && hit.y === y && hit.z === z));
+
+                computerHits.push({ x, y, z });
+
+                const hitIndex = playerShips.findIndex(ship => ship.x === x && ship.y === y && ship.z === z);
+                if (hitIndex !== -1) {
+                    // Computer hits player's ship
+                    updateGameMessage('Computer hit your ship!');
+                    const ship = playerShips[hitIndex];
+                    ship.mesh.material.color.set(0xff0000); // Change color to red
+                    playerShips.splice(hitIndex, 1);
+
+                    // Check for loss condition
+                    if (playerShips.length === 0) {
+                        updateGameMessage('Computer wins!');
+                        gameOver = true;
+                    } else {
+                        setTimeout(askQuestion, 2000);
+                    }
+                } else {
+                    updateGameMessage('Computer missed!');
+                    // Mark miss on the scene
+                    const geometry = new THREE.SphereGeometry(cubeSize / 4, 8, 8);
+                    const material = new THREE.MeshLambertMaterial({ color: 0x000000 });
+                    const sphere = new THREE.Mesh(geometry, material);
+                    sphere.position.set(x, y, z);
+                    sphere.name = 'computerMiss';
+                    scene.add(sphere);
+
+                    setTimeout(askQuestion, 2000);
+                }
+            }, 2000);
+        }
+
+        function updateGameMessage(message) {
+            document.getElementById('gameMessage').textContent = message;
+        }
+
+        function updatePlacementMessage(message) {
+            document.getElementById('placementMessage').textContent = message;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+    </script>
+
+</body>
+
+</html>
