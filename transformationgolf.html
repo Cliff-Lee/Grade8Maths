@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golf Transformation Game</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            background-color: lightgreen;
+            cursor: default;
+        }
+        .game-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .controls {
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            width: 180px;
+        }
+        .score-sheet {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        td, th {
+            padding: 5px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Golf Transformation Game</h1>
+    <p>Use the buttons on the right to transform the golf ball and get it to the hole with the fewest moves. Record each step in the table below.</p>
+
+    <div class="game-container">
+        <canvas id="golfCanvas" width="500" height="500"></canvas>
+
+        <div class="controls">
+            <button onclick="performRotation('clockwise')">Rotate 90° Clockwise</button>
+            <button onclick="performRotation('counterclockwise')">Rotate 90° Counterclockwise</button>
+            <button onclick="reflectX()">Reflect Across X-axis</button>
+            <button onclick="reflectY()">Reflect Across Y-axis</button>
+            <button onclick="reflectYEqualsX()">Reflect Across y = x</button>
+            <button onclick="reflectYEqualsNegativeX()">Reflect Across y = -x</button>
+            <button onclick="moveLeft()">Move Left</button>
+            <button onclick="moveRight()">Move Right</button>
+            <button onclick="moveUp()">Move Up</button>
+            <button onclick="moveDown()">Move Down</button>
+        </div>
+    </div>
+
+    <p>Hole: <span id="currentHole">1</span> | Par: <span id="par">3</span> | Shots: <span id="shotsCount">0</span></p>
+
+    <div class="score-sheet">
+        <h3>Score Sheet</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Hole</th>
+                    <th>Par</th>
+                    <th>Shot</th>
+                    <th>Transformation</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="scoreSheet"></tbody>
+        </table>
+    </div>
+
+    <button onclick="nextHole()" style="margin-top: 20px;">Next Hole</button>
+
+    <script>
+        const canvas = document.getElementById("golfCanvas");
+        const ctx = canvas.getContext("2d");
+        const shotsCountDisplay = document.getElementById("shotsCount");
+        const parDisplay = document.getElementById("par");
+        const currentHoleDisplay = document.getElementById("currentHole");
+        const scoreSheet = document.getElementById("scoreSheet");
+
+        let shots = 0;
+        let hole = 1;
+        const parList = [3, 4, 5, 4, 4, 5, 4, 3, 4, 3, 5, 4, 4, 5, 4, 4, 3, 5];
+        const holeTolerance = 5;  // Tolerance radius for detecting the hole
+
+        // Predefined positions for the ball and hole for each hole
+        const holePositions = [
+            { ball: { x: 100, y: 400 }, hole: { x: 50, y: 50 } },   // Hole 1
+            { ball: { x: 150, y: 350 }, hole: { x: 400, y: 100 } },  // Hole 2
+            { ball: { x: 200, y: 300 }, hole: { x: 50, y: 50 } },    // Hole 3
+            { ball: { x: 300, y: 400 }, hole: { x: 200, y: 100 } },  // Hole 4
+            { ball: { x: 50, y: 350 }, hole: { x: 250, y: 100 } },   // Hole 5
+            { ball: { x: 400, y: 400 }, hole: { x: 50, y: 200 } },   // Hole 6
+            { ball: { x: 100, y: 300 }, hole: { x: 400, y: 50 } },   // Hole 7
+            { ball: { x: 150, y: 200 }, hole: { x: 350, y: 350 } },  // Hole 8
+            { ball: { x: 200, y: 100 }, hole: { x: 400, y: 100 } },  // Hole 9
+            { ball: { x: 300, y: 50 }, hole: { x: 100, y: 400 } },   // Hole 10
+            { ball: { x: 100, y: 50 }, hole: { x: 250, y: 250 } },   // Hole 11
+            { ball: { x: 200, y: 350 }, hole: { x: 150, y: 150 } },  // Hole 12
+            { ball: { x: 300, y: 200 }, hole: { x: 50, y: 400 } },   // Hole 13
+            { ball: { x: 400, y: 50 }, hole: { x: 100, y: 200 } },   // Hole 14
+            { ball: { x: 50, y: 300 }, hole: { x: 400, y: 100 } },   // Hole 15
+            { ball: { x: 150, y: 150 }, hole: { x: 250, y: 250 } },  // Hole 16
+            { ball: { x: 200, y: 50 }, hole: { x: 150, y: 350 } },   // Hole 17
+            { ball: { x: 300, y: 400 }, hole: { x: 400, y: 100 } }   // Hole 18
+        ];
+
+        let ballPosition = { ...holePositions[0].ball };
+        let holePosition = { ...holePositions[0].hole };
+
+        // Fixed center of rotation (always at the center of the canvas)
+        const rotationCenter = { x: 250, y: 250 };
+
+        // Flags for reflection lines
+        let showReflectionLine = false;
+        let reflectionType = ''; // 'y=x' or 'y=-x'
+
+        // Initialize the game
+        function drawCourse() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = 'lightgray';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // Draw axes (always fixed at the center)
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(250, 0);
+            ctx.lineTo(250, canvas.height);
+            ctx.stroke();
+
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(0, 250);
+            ctx.lineTo(canvas.width, 250);
+            ctx.stroke();
+
+            // Conditionally draw reflection lines
+            if (showReflectionLine) {
+                ctx.strokeStyle = 'blue';
+                ctx.lineWidth = 1;
+                if (reflectionType === 'y=x') {
+                    ctx.beginPath();
+                    const offset = Math.min(rotationCenter.x, rotationCenter.y);
+                    ctx.moveTo(rotationCenter.x - offset, rotationCenter.y - offset);
+                    ctx.lineTo(rotationCenter.x + Math.min(canvas.width - rotationCenter.x, canvas.height - rotationCenter.y), rotationCenter.y + Math.min(canvas.width - rotationCenter.x, canvas.height - rotationCenter.y));
+                    ctx.stroke();
+                } else if (reflectionType === 'y=-x') {
+                    ctx.beginPath();
+                    const offset = Math.min(rotationCenter.x, canvas.height - rotationCenter.y);
+                    ctx.moveTo(rotationCenter.x - offset, rotationCenter.y + offset);
+                    ctx.lineTo(rotationCenter.x + Math.min(canvas.width - rotationCenter.x, rotationCenter.y), rotationCenter.y - Math.min(canvas.width - rotationCenter.x, rotationCenter.y));
+                    ctx.stroke();
+                }
+            }
+
+            // Draw rotation center (blue circle)
+            ctx.beginPath();
+            ctx.arc(rotationCenter.x, rotationCenter.y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = 'blue';
+            ctx.fill();
+            ctx.stroke();
+            ctx.closePath();
+
+            // Draw hole
+            ctx.beginPath();
+            ctx.arc(holePosition.x, holePosition.y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+            ctx.closePath();
+
+            // Draw ball
+            ctx.beginPath();
+            ctx.arc(ballPosition.x, ballPosition.y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        // Ensure all points are rounded to the nearest integer
+        function roundToNearestInteger(point) {
+            return { x: Math.round(point.x), y: Math.round(point.y) };
+        }
+
+        // Function to check if the ball is in the hole (with tolerance)
+        function isBallInHole() {
+            const dx = ballPosition.x - holePosition.x;
+            const dy = ballPosition.y - holePosition.y;
+            return Math.sqrt(dx * dx + dy * dy) <= holeTolerance;
+        }
+
+        // Helper function to rotate a point around a center by 90° (clockwise or counterclockwise)
+        function rotatePoint(x, y, cx, cy, direction) {
+            const dx = x - cx;
+            const dy = y - cy;
+            if (direction === 'clockwise') {
+                return roundToNearestInteger({ x: cx + dy, y: cy - dx });
+            } else {
+                return roundToNearestInteger({ x: cx - dy, y: cy + dx });
+            }
+        }
+
+        // Function to perform rotation
+        function performRotation(direction) {
+            ballPosition = rotatePoint(ballPosition.x, ballPosition.y, rotationCenter.x, rotationCenter.y, direction);
+            const transformationDesc = `Rotate 90° ${direction === 'clockwise' ? 'Clockwise' : 'Counterclockwise'}`;
+            shots++;
+            shotsCountDisplay.innerText = shots;
+            updateScoreSheet(transformationDesc, "");
+            checkIfBallInHole();
+            drawCourse();
+        }
+
+        // Reflection functions
+        function reflectX() {
+            ballPosition.y = 2 * rotationCenter.y - ballPosition.y;
+            ballPosition = roundToNearestInteger(ballPosition);  // Ensure integer result
+            const transformationDesc = "Reflect Across X-axis";
+            shots++;
+            shotsCountDisplay.innerText = shots;
+            updateScoreSheet(transformationDesc, "");
+            checkIfBallInHole();
+            drawCourse();
+        }
+
+        function reflectY() {
+            ballPosition.x = 2 * rotationCenter.x - ballPosition.x;
+            ballPosition = roundToNearestInteger(ballPosition);  // Ensure integer result
+            const transformationDesc = "Reflect Across Y-axis";
+            shots++;
+            shotsCountDisplay.innerText = shots;
+            updateScoreSheet(transformationDesc, "");
+            checkIfBallInHole();
+            drawCourse();
+        }
+
+        function reflectYEqualsX() {
+            const dx = ballPosition.x - rotationCenter.x;
+            const dy = ballPosition.y - rotationCenter.y;
+            ballPosition.x = rotationCenter.x + dy;
+            ballPosition.y = rotationCenter.y + dx;
+            ballPosition = roundToNearestInteger(ballPosition);  // Ensure integer result
+            const transformationDesc = "Reflect Across y = x";
+            shots++;
+            shotsCountDisplay.innerText = shots;
+            showReflectionLine = true;
+            reflectionType = 'y=x';
+            updateScoreSheet(transformationDesc, "");
+            checkIfBallInHole();
+            drawCourse();
+            setTimeout(() => {
+                showReflectionLine = false;
+                reflectionType = '';
+                drawCourse();
+            }, 1000);
+        }
+
+        function reflectYEqualsNegativeX() {
+            const dx = ballPosition.x - rotationCenter.x;
+            const dy = ballPosition.y - rotationCenter.y;
+            ballPosition.x = rotationCenter.x - dy;
+            ballPosition.y = rotationCenter.y - dx;
+            ballPosition = roundToNearestInteger(ballPosition);  // Ensure integer result
+            const transformationDesc = "Reflect Across y = -x";
+            shots++;
+            shotsCountDisplay.innerText = shots;
+            showReflectionLine = true;
+            reflectionType = 'y=-x';
+            updateScoreSheet(transformationDesc, "");
+            checkIfBallInHole();
+            drawCourse();
+            setTimeout(() => {
+                showReflectionLine = false;
+                reflectionType = '';
+                drawCourse();
+            }, 1000);
+        }
+
+        // Movement functions with boundary checks
+        function moveLeft() {
+            if (ballPosition.x - 50 >= 0) {
+                ballPosition.x -= 50;
+                ballPosition = roundToNearestInteger(ballPosition);  // Ensure integer result
+                const transformationDesc = "Move Left";
+                shots++;
+                shotsCountDisplay.innerText = shots;
+                updateScoreSheet(transformationDesc, "Left by 50 units");
+                checkIfBallInHole();
+                drawCourse();
+            } else {
+                alert("Cannot move left. Ball is at the edge.");
+            }
+        }
+
+        function moveRight() {
+            if (ballPosition.x + 50 <= canvas.width) {
+                ballPosition.x += 50;
+                ballPosition = roundToNearestInteger(ballPosition);  // Ensure integer result
+                const transformationDesc = "Move Right";
+                shots++;
+                shotsCountDisplay.innerText = shots;
+                updateScoreSheet(transformationDesc, "Right by 50 units");
+                checkIfBallInHole();
+                drawCourse();
+            } else {
+                alert("Cannot move right. Ball is at the edge.");
+            }
+        }
+
+        function moveUp() {
+            if (ballPosition.y - 50 >= 0) {
+                ballPosition.y -= 50;
+                ballPosition = roundToNearestInteger(ballPosition);  // Ensure integer result
+                const transformationDesc = "Move Up";
+                shots++;
+                shotsCountDisplay.innerText = shots;
+                updateScoreSheet(transformationDesc, "Up by 50 units");
+                checkIfBallInHole();
+                drawCourse();
+            } else {
+                alert("Cannot move up. Ball is at the edge.");
+            }
+        }
+
+        function moveDown() {
+            if (ballPosition.y + 50 <= canvas.height) {
+                ballPosition.y += 50;
+                ballPosition = roundToNearestInteger(ballPosition);  // Ensure integer result
+                const transformationDesc = "Move Down";
+                shots++;
+                shotsCountDisplay.innerText = shots;
+                updateScoreSheet(transformationDesc, "Down by 50 units");
+                checkIfBallInHole();
+                drawCourse();
+            } else {
+                alert("Cannot move down. Ball is at the edge.");
+            }
+        }
+
+        // Function to check if the ball is in the hole
+        function checkIfBallInHole() {
+            if (isBallInHole()) {
+                alert("Congratulations! The ball is in the hole.");
+            }
+        }
+
+        // Function to update the score sheet
+        function updateScoreSheet(transformation, details) {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${hole}</td>
+                <td>${parList[hole - 1]}</td>
+                <td>${shots}</td>
+                <td>${transformation}</td>
+                <td>${details}</td>
+            `;
+            scoreSheet.appendChild(newRow);
+        }
+
+        // Function to reset for the next hole
+        function nextHole() {
+            if (hole < 18) {
+                hole++;
+                currentHoleDisplay.innerText = hole;
+                parDisplay.innerText = parList[hole - 1];
+                shots = 0;
+                shotsCountDisplay.innerText = shots;
+                ballPosition = { ...holePositions[hole - 1].ball };
+                holePosition = { ...holePositions[hole - 1].hole };
+                drawCourse();
+            } else {
+                alert('Game Over! Thanks for playing.');
+            }
+        }
+
+        // Initialize the first hole
+        drawCourse();
+    </script>
+</body>
+    <footer>
+        <p>Created by cliffpackman@gmail.com on 29/9/2024</p>
+    </footer>
+</html>
