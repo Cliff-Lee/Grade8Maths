@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Octic Group of a Square - Interactive Applet and Quiz</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #instructions {
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+        }
+        #diagramContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+        }
+        .transformation-diagram {
+            flex: 1 1 calc(12% - 10px);
+            margin: 5px;
+            text-align: center;
+        }
+        .diagram-svg {
+            width: 100%;
+            height: auto;
+            max-width: 100px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        .vertex-label {
+            font-size: 8px;
+            fill: blue;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .axis-line {
+            stroke: red;
+            stroke-width: 0.5;
+            stroke-dasharray: 2;
+        }
+        #container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        #appletFrame {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        svg.main-applet {
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            width: 100%;
+            height: auto;
+            max-width: 400px;
+        }
+        #mainControls {
+            margin-top: 10px;
+        }
+        button {
+            margin: 5px;
+            width: 120px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #transformationLog {
+            margin-top: 10px;
+            padding: 5px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            text-align: center;
+        }
+        #quizFrame {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .quiz-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .quiz-question {
+            flex: 1 1 calc(33% - 20px);
+            margin: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fafafa;
+        }
+        .quiz-options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .quiz-options li {
+            margin: 5px 0;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        /* Responsive Design */
+        @media (max-width: 800px) {
+            .transformation-diagram {
+                flex: 1 1 calc(25% - 10px);
+            }
+            .quiz-question {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+        @media (max-width: 500px) {
+            .transformation-diagram {
+                flex: 1 1 calc(50% - 10px);
+            }
+            .quiz-question {
+                flex: 1 1 100%;
+            }
+        }
+        /* Cayley Table Styles */
+        #cayleyTableFrame {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-top: 20px;
+        }
+        #cayleyTableFrame h3 {
+            margin-bottom: 10px;
+        }
+        table.cayley-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table.cayley-table th, table.cayley-table td {
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: center;
+        }
+        table.cayley-table th {
+            background-color: #f0f0f0;
+        }
+        .cayley-select {
+            width: 100%;
+            padding: 2px;
+        }
+        #cayleyFeedback {
+            margin-top: 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .cayleyCorrect {
+            color: green;
+        }
+        .cayleyIncorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Investigating the Octic Group of a Square</h1>
+
+<div id="instructions">
+    <h2>Instructions</h2>
+    <p>
+        Use the interactive applet below to apply rotations and reflections to the square. Visual indicators will appear:
+    </p>
+    <ul>
+        <li><strong>Rotations:</strong> A green arrow showing the angle of rotation in an anticlockwise direction.</li>
+        <li><strong>Reflections:</strong> A red dotted line indicating the axis of reflection.</li>
+    </ul>
+    <p>
+        The vertices are labeled A, B, C, and D to help you track the transformations. You can apply multiple transformations in sequence to explore how they combine.
+    </p>
+    <p>
+        Below, you will find diagrams of all transformations with labeled vertices for reference, including the Identity transformation.
+    </p>
+</div>
+
+<!-- Transformation Diagrams Above the Applet -->
+<div id="diagramContainer">
+    <!-- Identity (a) -->
+    <div class="transformation-diagram">
+        <h5>Identity (a)</h5>
+        <svg class="diagram-svg" viewBox="-25 -25 50 50">
+            <!-- Square -->
+            <polygon points="-15,-15 15,-15 15,15 -15,15" fill="#e0e0e0" stroke="black" stroke-width="1"></polygon>
+            <!-- Vertex Labels -->
+            <text x="-15" y="-18" class="vertex-label">A</text>
+            <text x="15" y="-18" class="vertex-label">B</text>
+            <text x="15" y="18" class="vertex-label">C</text>
+            <text x="-15" y="18" class="vertex-label">D</text>
+        </svg>
+    </div>
+    <!-- Rotate 90° (b) -->
+    <div class="transformation-diagram">
+        <h5>Rotate 90° (b)</h5>
+        <svg class="diagram-svg" viewBox="-25 -25 50 50">
+            <!-- Transformed Square -->
+            <!-- Corrected points for 90° rotation -->
+            <polygon points="15,-15 15,15 -15,15 -15,-15" fill="#e0e0e0" stroke="black" stroke-width="1"></polygon>
+            <!-- Vertex Labels -->
+            <text x="15" y="-18" class="vertex-label">A</text>
+            <text x="15" y="18" class="vertex-label">B</text>
+            <text x="-15" y="18" class="vertex-label">C</text>
+            <text x="-15" y="-18" class="vertex-label">D</text>
+        </svg>
+    </div>
+    <!-- Rotate 180° (c) -->
+    <div class="transformation-diagram">
+        <h5>Rotate 180° (c)</h5>
+        <svg class="diagram-svg" viewBox="-25 -25 50 50">
+            <!-- Transformed Square -->
+            <polygon points="15,15 -15,15 -15,-15 15,-15" fill="#e0e0e0" stroke="black" stroke-width="1"></polygon>
+            <!-- Vertex Labels -->
+            <text x="15" y="18" class="vertex-label">A</text>
+            <text x="-15" y="18" class="vertex-label">B</text>
+            <text x="-15" y="-18" class="vertex-label">C</text>
+            <text x="15" y="-18" class="vertex-label">D</text>
+        </svg>
+    </div>
+    <!-- Rotate 270° (d) -->
+    <div class="transformation-diagram">
+        <h5>Rotate 270° (d)</h5>
+        <svg class="diagram-svg" viewBox="-25 -25 50 50">
+            <!-- Transformed Square -->
+            <!-- Corrected points for 270° rotation -->
+            <polygon points="-15,15 -15,-15 15,-15 15,15" fill="#e0e0e0" stroke="black" stroke-width="1"></polygon>
+            <!-- Vertex Labels -->
+            <text x="-15" y="18" class="vertex-label">A</text>
+            <text x="-15" y="-18" class="vertex-label">B</text>
+            <text x="15" y="-18" class="vertex-label">C</text>
+            <text x="15" y="18" class="vertex-label">D</text>
+        </svg>
+    </div>
+    <!-- Reflect Vertical (e) -->
+    <div class="transformation-diagram">
+        <h5>Reflect Vertical (e)</h5>
+        <svg class="diagram-svg" viewBox="-25 -25 50 50">
+            <!-- Transformed Square -->
+            <polygon points="15,-15 -15,-15 -15,15 15,15" fill="#e0e0e0" stroke="black" stroke-width="1"></polygon>
+            <!-- Vertex Labels -->
+            <text x="15" y="-18" class="vertex-label">A</text>
+            <text x="-15" y="-18" class="vertex-label">B</text>
+            <text x="-15" y="18" class="vertex-label">C</text>
+            <text x="15" y="18" class="vertex-label">D</text>
+            <!-- Reflection Axis -->
+            <line x1="0" y1="-20" x2="0" y2="20" class="axis-line"></line>
+        </svg>
+    </div>
+    <!-- Reflect Horizontal (f) -->
+    <div class="transformation-diagram">
+        <h5>Reflect Horizontal (f)</h5>
+        <svg class="diagram-svg" viewBox="-25 -25 50 50">
+            <!-- Transformed Square -->
+            <polygon points="-15,15 15,15 15,-15 -15,-15" fill="#e0e0e0" stroke="black" stroke-width="1"></polygon>
+            <!-- Vertex Labels -->
+            <text x="-15" y="18" class="vertex-label">A</text>
+            <text x="15" y="18" class="vertex-label">B</text>
+            <text x="15" y="-18" class="vertex-label">C</text>
+            <text x="-15" y="-18" class="vertex-label">D</text>
+            <!-- Reflection Axis -->
+            <line x1="-20" y1="0" x2="20" y2="0" class="axis-line"></line>
+        </svg>
+    </div>
+    <!-- Reflect Diagonal 1 (g) -->
+    <div class="transformation-diagram">
+        <h5>Reflect Diagonal 1 (g)</h5>
+        <svg class="diagram-svg" viewBox="-25 -25 50 50">
+            <!-- Transformed Square -->
+            <polygon points="-15,-15 -15,15 15,15 15,-15" fill="#e0e0e0" stroke="black" stroke-width="1"></polygon>
+            <!-- Vertex Labels -->
+            <text x="-15" y="-18" class="vertex-label">A</text>
+            <text x="-15" y="18" class="vertex-label">B</text>
+            <text x="15" y="18" class="vertex-label">C</text>
+            <text x="15" y="-18" class="vertex-label">D</text>
+            <!-- Reflection Axis -->
+            <line x1="-20" y1="-20" x2="20" y2="20" class="axis-line"></line>
+        </svg>
+    </div>
+    <!-- Reflect Diagonal 2 (h) -->
+    <div class="transformation-diagram">
+        <h5>Reflect Diagonal 2 (h)</h5>
+        <svg class="diagram-svg" viewBox="-25 -25 50 50">
+            <!-- Transformed Square -->
+            <polygon points="-15,-15 15,-15 15,15 -15,15" fill="#e0e0e0" stroke="black" stroke-width="1"></polygon>
+            <!-- Vertex Labels -->
+            <text x="-15" y="-18" class="vertex-label">A</text>
+            <text x="15" y="-18" class="vertex-label">B</text>
+            <text x="15" y="18" class="vertex-label">C</text>
+            <text x="-15" y="18" class="vertex-label">D</text>
+            <!-- Reflection Axis -->
+            <line x1="20" y1="-20" x2="-20" y2="20" class="axis-line"></line>
+        </svg>
+    </div>
+</div>
+
+<div id="container">
+    <!-- Applet Frame -->
+    <div id="appletFrame">
+        <h3>Interactive Transformation Applet</h3>
+        <!-- Main Applet SVG -->
+        <svg id="mainSVG" class="main-applet" viewBox="-50 -50 100 100">
+            <!-- Definitions for markers -->
+            <defs>
+                <marker id="arrowheadMain" markerWidth="5" markerHeight="5" refX="0" refY="2.5" orient="auto">
+                    <polygon points="0 0, 5 2.5, 0 5" fill="green"></polygon>
+                </marker>
+            </defs>
+            <!-- Square -->
+            <polygon id="mainSquare" points="-20,-20 20,-20 20,20 -20,20" fill="#e0e0e0" stroke="black" stroke-width="2"></polygon>
+            <!-- Vertex Labels -->
+            <text x="-20" y="-25" class="vertex-label" id="mainLabelA">A</text>
+            <text x="20" y="-25" class="vertex-label" id="mainLabelB">B</text>
+            <text x="20" y="25" class="vertex-label" id="mainLabelC">C</text>
+            <text x="-20" y="25" class="vertex-label" id="mainLabelD">D</text>
+            <!-- Reflection Axis Line -->
+            <line id="mainAxisLine" class="axis-line" x1="0" y1="-50" x2="0" y2="50" visibility="hidden"></line>
+            <!-- Rotation Arrow Removed as per user request -->
+            <!-- <path id="mainRotationArrow" class="rotation-arrow" d="" visibility="hidden"></path> -->
+        </svg>
+        <!-- Transformation Controls -->
+        <div id="mainControls">
+            <h4>Transformations</h4>
+            <button onclick="applyMainTransformation('Rotate 90')">Rotate 90° (b)</button>
+            <button onclick="applyMainTransformation('Rotate 180')">Rotate 180° (c)</button>
+            <button onclick="applyMainTransformation('Rotate 270')">Rotate 270° (d)</button>
+            <button onclick="applyMainTransformation('Reflect Vertical')">Reflect Vertical (e)</button>
+            <button onclick="applyMainTransformation('Reflect Horizontal')">Reflect Horizontal (f)</button>
+            <button onclick="applyMainTransformation('Reflect Diagonal 1')">Reflect Diagonal 1 (g)</button>
+            <button onclick="applyMainTransformation('Reflect Diagonal 2')">Reflect Diagonal 2 (h)</button>
+            <button onclick="resetMainTransformations()">Reset</button>
+        </div>
+        <div id="transformationLog">No transformations applied yet.</div>
+    </div>
+</div>
+
+<!-- Quiz Frame -->
+<div id="quizFrame">
+    <h3>Transformation Quiz</h3>
+    <div id="quizQuestions" class="quiz-container"></div>
+    <button onclick="generateQuiz()">Generate New Questions</button>
+</div>
+
+<!-- Cayley Table Frame -->
+<div id="cayleyTableFrame">
+    <h3>Cayley Table</h3>
+    <p>Select the resulting transformation for each combination of transformations below.</p>
+    <table class="cayley-table" id="cayleyTable">
+        <thead>
+            <tr>
+                <th></th>
+                <!-- Transformation Headers will be inserted here -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Transformation Rows will be inserted here -->
+        </tbody>
+    </table>
+    <button onclick="checkCayleyTable()">Check Cayley Table</button>
+    <div id="cayleyFeedback"></div>
+</div>
+
+<script>
+    // Transformation letters mapping
+    const transformationLetters = {
+        'Identity': 'a',
+        'Rotate 90': 'b',
+        'Rotate 180': 'c',
+        'Rotate 270': 'd',
+        'Reflect Vertical': 'e',
+        'Reflect Horizontal': 'f',
+        'Reflect Diagonal 1': 'g',
+        'Reflect Diagonal 2': 'h'
+    };
+
+    const letterToTransformation = {};
+    for (let key in transformationLetters) {
+        letterToTransformation[transformationLetters[key]] = key;
+    }
+
+    // Transformation matrices (Anti-clockwise rotations)
+    const transformationMatrices = {
+        'Identity': [[1, 0], [0, 1]],
+        'Rotate 90': [[0, -1], [1, 0]],
+        'Rotate 180': [[-1, 0], [0, -1]],
+        'Rotate 270': [[0, 1], [-1, 0]],
+        'Reflect Vertical': [[-1, 0], [0, 1]],
+        'Reflect Horizontal': [[1, 0], [0, -1]],
+        'Reflect Diagonal 1': [[0, 1], [1, 0]],
+        'Reflect Diagonal 2': [[0, -1], [-1, 0]]
+    };
+
+    // Main Applet Variables
+    const mainSVG = document.getElementById('mainSVG');
+    const mainSquare = document.getElementById('mainSquare');
+    const mainAxisLine = document.getElementById('mainAxisLine');
+    // Rotation Arrow Removed as per user request
+    // const mainRotationArrow = document.getElementById('mainRotationArrow');
+    const mainLabels = {
+        A: document.getElementById('mainLabelA'),
+        B: document.getElementById('mainLabelB'),
+        C: document.getElementById('mainLabelC'),
+        D: document.getElementById('mainLabelD')
+    };
+    const transformationLog = document.getElementById('transformationLog');
+    let mainTransformations = [];
+
+    function applyMainTransformation(name) {
+        mainTransformations.push(name);
+        updateMainTransformations();
+    }
+
+    function updateMainTransformations() {
+        // Reset square and labels
+        mainSquare.setAttribute('points', '-20,-20 20,-20 20,20 -20,20');
+        for (let key in mainLabels) {
+            const label = mainLabels[key];
+            label.setAttribute('x', (key === 'B' || key === 'C') ? 20 : -20);
+            label.setAttribute('y', (key === 'C' || key === 'D') ? 25 : -25);
+            label.setAttribute('transform', 'rotate(0)');
+        }
+        mainAxisLine.setAttribute('visibility', 'hidden');
+        // Rotation Arrow Removed as per user request
+        // mainRotationArrow.setAttribute('visibility', 'hidden');
+
+        // Apply transformations
+        let currentMatrix = transformationMatrices['Identity'];
+        mainTransformations.forEach(name => {
+            currentMatrix = multiplyMatrices(currentMatrix, transformationMatrices[name]);
+        });
+
+        // Update square and labels positions
+        const originalPoints = [[-20, -20], [20, -20], [20, 20], [-20, 20]];
+        const transformedPoints = originalPoints.map(([x, y]) => {
+            const newX = x * currentMatrix[0][0] + y * currentMatrix[0][1];
+            const newY = x * currentMatrix[1][0] + y * currentMatrix[1][1];
+            return [newX, newY];
+        });
+        const pointsString = transformedPoints.map(point => point.join(',')).join(' ');
+        mainSquare.setAttribute('points', pointsString);
+
+        // Update labels
+        const labelPositions = {
+            A: transformedPoints[0],
+            B: transformedPoints[1],
+            C: transformedPoints[2],
+            D: transformedPoints[3]
+        };
+        for (let key in mainLabels) {
+            const label = mainLabels[key];
+            const [x, y] = labelPositions[key];
+            label.setAttribute('x', x);
+            label.setAttribute('y', y - 5);
+            label.setAttribute('transform', 'rotate(0)');
+        }
+
+        // Show visual indicators for the last transformation
+        if (mainTransformations.length > 0) {
+            const lastTransformation = mainTransformations[mainTransformations.length - 1];
+            if (lastTransformation.startsWith('Reflect')) {
+                showMainReflectionAxis(lastTransformation);
+            } else if (lastTransformation.startsWith('Rotate')) {
+                // Rotation indicators removed as per user request
+                // showMainRotationIndicator(lastTransformation);
+            }
+        }
+
+        // Update the transformation log
+        transformationLog.textContent = mainTransformations.map(t => `${t} (${transformationLetters[t]})`).join(' ➔ ') || 'No transformations applied yet.';
+    }
+
+    function resetMainTransformations() {
+        mainTransformations = [];
+        updateMainTransformations();
+    }
+
+    function showMainReflectionAxis(transformation) {
+        mainAxisLine.setAttribute('visibility', 'visible');
+        // Rotation Arrow Removed as per user request
+        // mainRotationArrow.setAttribute('visibility', 'hidden');
+        let x1, y1, x2, y2;
+        switch (transformation) {
+            case 'Reflect Vertical':
+                x1 = 0; y1 = -50; x2 = 0; y2 = 50;
+                break;
+            case 'Reflect Horizontal':
+                x1 = -50; y1 = 0; x2 = 50; y2 = 0;
+                break;
+            case 'Reflect Diagonal 1':
+                x1 = -50; y1 = -50; x2 = 50; y2 = 50;
+                break;
+            case 'Reflect Diagonal 2':
+                x1 = 50; y1 = -50; x2 = -50; y2 = 50;
+                break;
+        }
+        mainAxisLine.setAttribute('x1', x1);
+        mainAxisLine.setAttribute('y1', y1);
+        mainAxisLine.setAttribute('x2', x2);
+        mainAxisLine.setAttribute('y2', y2);
+    }
+
+    // Utility Functions
+    function multiplyMatrices(a, b) {
+        return [
+            [
+                a[0][0] * b[0][0] + a[0][1] * b[1][0],
+                a[0][0] * b[0][1] + a[0][1] * b[1][1]
+            ],
+            [
+                a[1][0] * b[0][0] + a[1][1] * b[1][0],
+                a[1][0] * b[0][1] + a[1][1] * b[1][1]
+            ]
+        ];
+    }
+
+    function matricesEqual(a, b) {
+        return a[0][0] === b[0][0] && a[0][1] === b[0][1] &&
+               a[1][0] === b[1][0] && a[1][1] === b[1][1];
+    }
+
+    function shuffleArray(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    // Quiz Functionality
+    const quizQuestionsDiv = document.getElementById('quizQuestions');
+    function generateQuiz() {
+        quizQuestionsDiv.innerHTML = '';
+        const questions = generateQuestions(9); // Adjusted to 9 questions to fit layout
+        questions.forEach((q, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('quiz-question');
+
+            const questionText = document.createElement('p');
+            questionText.textContent = `Q${index + 1}: ${q.question}`;
+            questionDiv.appendChild(questionText);
+
+            const optionsList = document.createElement('ul');
+            optionsList.classList.add('quiz-options');
+
+            q.options.forEach(option => {
+                const optionItem = document.createElement('li');
+                const optionLabel = document.createElement('label');
+                const optionRadio = document.createElement('input');
+                optionRadio.type = 'radio';
+                optionRadio.name = `question${index}`;
+                optionRadio.value = option;
+                optionLabel.appendChild(optionRadio);
+                optionLabel.appendChild(document.createTextNode(option));
+                optionItem.appendChild(optionLabel);
+                optionsList.appendChild(optionItem);
+            });
+
+            questionDiv.appendChild(optionsList);
+
+            const checkButton = document.createElement('button');
+            checkButton.textContent = 'Check Answer';
+            checkButton.onclick = () => checkAnswer(q, index, questionDiv);
+            questionDiv.appendChild(checkButton);
+
+            quizQuestionsDiv.appendChild(questionDiv);
+        });
+    }
+
+    function generateQuestions(num) {
+        const questions = [];
+        for (let i = 0; i < num; i++) {
+            const question = createQuestion();
+            questions.push(question);
+        }
+        return questions;
+    }
+
+    function createQuestion() {
+        const transformationsList = ['Rotate 90', 'Rotate 180', 'Rotate 270',
+            'Reflect Vertical', 'Reflect Horizontal', 'Reflect Diagonal 1', 'Reflect Diagonal 2'];
+
+        // Randomly choose transformations to combine
+        const numTransformations = Math.floor(Math.random() * 3) + 2; // 2 to 4 transformations
+        const transformationsToApply = [];
+        for (let i = 0; i < numTransformations; i++) {
+            const randomIndex = Math.floor(Math.random() * transformationsList.length);
+            transformationsToApply.push(transformationsList[randomIndex]);
+        }
+
+        // Compute the resulting transformation
+        let resultMatrix = transformationMatrices['Identity'];
+        transformationsToApply.forEach(transformation => {
+            resultMatrix = multiplyMatrices(resultMatrix, transformationMatrices[transformation]);
+        });
+
+        // Find the equivalent single transformation
+        let equivalentTransformation = 'Identity';
+        for (let name in transformationMatrices) {
+            if (matricesEqual(resultMatrix, transformationMatrices[name])) {
+                equivalentTransformation = name;
+                break;
+            }
+        }
+
+        // Create options
+        let options = transformationsList.slice();
+        options.push('Identity');
+        options = shuffleArray(options);
+        options = options.slice(0, 3); // Take 3 random options
+        if (!options.includes(equivalentTransformation)) {
+            options.push(equivalentTransformation);
+        }
+        options = shuffleArray(options);
+
+        // Add transformation letters to options
+        options = options.map(opt => `${opt} (${transformationLetters[opt]})`);
+
+        const transformationsWithLetters = transformationsToApply.map(t => `${t} (${transformationLetters[t]})`);
+        const questionText = `Combining the transformations: ${transformationsWithLetters.join(' ➔ ')} results in which single transformation?`;
+
+        return {
+            question: questionText,
+            options: options,
+            answer: equivalentTransformation
+        };
+    }
+
+    function checkAnswer(question, index, questionDiv) {
+        const selectedOption = questionDiv.querySelector(`input[name="question${index}"]:checked`);
+        if (selectedOption) {
+            // Remove existing feedback if any
+            const existingFeedback = questionDiv.querySelector('.feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            const feedback = document.createElement('p');
+            feedback.classList.add('feedback');
+            const selectedTransformation = selectedOption.value.split(' (')[0];
+            if (selectedTransformation === question.answer) {
+                feedback.textContent = 'Correct!';
+                feedback.classList.add('correct');
+            } else {
+                const correctLetter = transformationLetters[question.answer];
+                feedback.textContent = `Incorrect. The correct answer is "${question.answer} (${correctLetter})".`;
+                feedback.classList.add('incorrect');
+            }
+            questionDiv.appendChild(feedback);
+        } else {
+            alert('Please select an answer.');
+        }
+    }
+
+    // Initialize the applet and quiz
+    resetMainTransformations();
+    generateQuiz();
+
+    // Cayley Table Functionality
+    const cayleyTable = document.getElementById('cayleyTable');
+    const cayleyTableHead = cayleyTable.querySelector('thead tr');
+    const cayleyTableBody = cayleyTable.querySelector('tbody');
+    const cayleyFeedback = document.getElementById('cayleyFeedback');
+
+    // Precompute Cayley Table
+    const transformations = ['Identity', 'Rotate 90', 'Rotate 180', 'Rotate 270',
+                             'Reflect Vertical', 'Reflect Horizontal', 'Reflect Diagonal 1', 'Reflect Diagonal 2'];
+
+    // Create header row
+    cayleyTableHead.innerHTML = '<th></th>'; // Empty top-left corner
+    transformations.forEach(transformation => {
+        const th = document.createElement('th');
+        th.textContent = `${transformation} (${transformationLetters[transformation]})`;
+        cayleyTableHead.appendChild(th);
+    });
+
+    // Create body rows
+    transformations.forEach(rowTrans => {
+        const tr = document.createElement('tr');
+        // Row header
+        const th = document.createElement('th');
+        th.textContent = `${rowTrans} (${transformationLetters[rowTrans]})`;
+        tr.appendChild(th);
+        // Cells with select dropdowns
+        transformations.forEach(colTrans => {
+            const td = document.createElement('td');
+            const select = document.createElement('select');
+            select.classList.add('cayley-select');
+            select.innerHTML = `<option value="">--</option>`;
+            transformations.forEach(optionTrans => {
+                const option = document.createElement('option');
+                option.value = optionTrans;
+                option.textContent = `${optionTrans} (${transformationLetters[optionTrans]})`;
+                select.appendChild(option);
+            });
+            td.appendChild(select);
+            tr.appendChild(td);
+        });
+        cayleyTableBody.appendChild(tr);
+    });
+
+    // Function to compute the Cayley table
+    function computeCayleyTable() {
+        const table = {};
+        transformations.forEach(a => {
+            table[a] = {};
+            transformations.forEach(b => {
+                const resultMatrix = multiplyMatrices(transformationMatrices[a], transformationMatrices[b]);
+                // Find the transformation that matches the resultMatrix
+                let resultTrans = 'Unknown';
+                for (let name in transformationMatrices) {
+                    if (matricesEqual(resultMatrix, transformationMatrices[name])) {
+                        resultTrans = name;
+                        break;
+                    }
+                }
+                table[a][b] = resultTrans;
+            });
+        });
+        return table;
+    }
+
+    const correctCayleyTable = computeCayleyTable();
+
+    function checkCayleyTable() {
+        let allCorrect = true;
+        const selects = cayleyTableBody.querySelectorAll('select');
+        let rowIndex = 0;
+        transformations.forEach(rowTrans => {
+            let colIndex = 0;
+            transformations.forEach(colTrans => {
+                const select = selects[rowIndex * transformations.length + colIndex];
+                const userSelection = select.value;
+                const correctSelection = correctCayleyTable[rowTrans][colTrans];
+                if (userSelection !== correctSelection) {
+                    allCorrect = false;
+                    select.style.border = '2px solid red';
+                } else {
+                    select.style.border = '2px solid green';
+                }
+                colIndex++;
+            });
+            rowIndex++;
+        });
+
+        if (allCorrect) {
+            cayleyFeedback.textContent = 'All entries are correct! Well done!';
+            cayleyFeedback.classList.remove('cayleyIncorrect');
+            cayleyFeedback.classList.add('cayleyCorrect');
+        } else {
+            cayleyFeedback.textContent = 'Some entries are incorrect. Please review and try again.';
+            cayleyFeedback.classList.remove('cayleyCorrect');
+            cayleyFeedback.classList.add('cayleyIncorrect');
+        }
+    }
+</script>
+
+<div id="questionsSection">
+    <h3>Explore Further: Thought-Provoking Questions</h3>
+    <p>
+        Now that you've explored the transformations of a square, consider what might happen if we took a different shape, such as:
+    </p>
+    <ul>
+        <li><strong>An equilateral triangle:</strong> How many transformations would there be? What kinds of rotations and reflections are possible?</li>
+        <li><strong>A regular hexagon:</strong> How do the rotations and reflections compare to the square? What patterns emerge?</li>
+    </ul>
+    <p>
+        Think about the structure of the Cayley table. What does the table reveal about the relationships between transformations? Why is it useful for understanding symmetry?
+    </p>
+    <p>
+        Symmetry is a key concept in many areas of mathematics and science. For example, it's related to the study of crystal structures in chemistry, and it helps mathematicians understand complex systems in group theory.
+    </p>
+</div>
+
+<!-- Resources Section -->
+<div id="resourcesSection">
+    <h3>Interested in Learning More?</h3>
+    <p>
+        If you're curious about transformations, symmetry, and group theory, here are some resources to help you dive deeper:
+    </p>
+    <ul>
+        <li><a href="https://nrich.maths.org/articles/small-groups" target="_blank">NRICH - 
+Small groups</a></li>
+        <li><a href="https://nrich.maths.org/problems/whats-group" target="_blank">NRICH - What's a group?</a></li>
+        <li><a href="https://www.khanacademy.org/math/geometry-home/transformations" target="_blank">Khan Academy - Transformations and Symmetry</a></li>
+        <li><a href="https://www.youtube.com/watch?v=zkADn-9wEgc" target="_blank">YouTube: Introduction to Group Theory</a></li>
+    </ul>
+</div>
+</body>
+    <footer>
+        <p>Created by cliffpackman@gmail.com 1/10/2024</p>
+    </footer>
+</html>
